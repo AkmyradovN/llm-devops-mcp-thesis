@@ -1,0 +1,161 @@
+{
+    "_description": "Ground-truth configuration values for automated correctness validation. Used by check_config.py to compare LLM-generated artefacts against expected values.",
+    "_thesis": "LLM-Assisted DevOps for Automated Deployment and Management of MCP Servers on Cloud Platforms",
+    "terraform": {
+        "provider": {
+            "name": "aws",
+            "region": "eu-central-1"
+        },
+        "instance": {
+            "type": "t2.micro",
+            "ami_os": "ubuntu-22.04",
+            "ami_arch": "amd64"
+        },
+        "security_group": {
+            "ingress_ports": [
+                22,
+                80,
+                81
+            ],
+            "egress": "all"
+        },
+        "outputs_required": [
+            "public_ip"
+        ],
+        "key_pair_required": true
+    },
+    "docker": {
+        "jira": {
+            "base_image": "python:3.10-slim",
+            "dependencies_file": "requirements.txt",
+            "app_file": "app.py",
+            "expose_port": 8000,
+            "entrypoint_command": "uvicorn",
+            "entrypoint_host": "0.0.0.0",
+            "entrypoint_port": 8000,
+            "healthcheck_path": "/health",
+            "healthcheck_required": true
+        },
+        "github": {
+            "base_image": "python:3.10-slim",
+            "dependencies_file": "requirements.txt",
+            "app_file": "app.py",
+            "expose_port": 8000,
+            "entrypoint_command": "uvicorn",
+            "entrypoint_host": "0.0.0.0",
+            "entrypoint_port": 8000,
+            "healthcheck_path": "/health",
+            "healthcheck_required": true
+        }
+    },
+    "cicd": {
+        "trigger_branch_manual": "manual-baseline",
+        "trigger_branch_llm": "llm-assisted",
+        "required_secrets": [
+            "EC2_HOST",
+            "EC2_USER",
+            "EC2_SSH_KEY"
+        ],
+        "jira_host_port": 80,
+        "github_host_port": 81,
+        "container_port": 8000,
+        "health_check_required": true,
+        "pipeline_fails_on_health_failure": true
+    },
+    "mcp_servers": {
+        "jira": {
+            "service_name": "MCP-Jira",
+            "health_endpoint": "/health",
+            "health_response": {
+                "status": "ok",
+                "service": "MCP-Jira"
+            },
+            "manifest_endpoint": "/manifest",
+            "functional_endpoints": [
+                {
+                    "path": "/create_ticket",
+                    "method": "GET",
+                    "required_params": [
+                        "project",
+                        "summary"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                },
+                {
+                    "path": "/get_ticket",
+                    "method": "GET",
+                    "required_params": [
+                        "ticket_key"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                },
+                {
+                    "path": "/list_tickets",
+                    "method": "GET",
+                    "required_params": [
+                        "project"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                }
+            ],
+            "env_vars": {
+                "MCP_API_VERSION": {
+                    "required": false,
+                    "default": "v1"
+                }
+            }
+        },
+        "github": {
+            "service_name": "MCP-GitHub",
+            "health_endpoint": "/health",
+            "health_response": {
+                "status": "ok",
+                "service": "MCP-GitHub"
+            },
+            "manifest_endpoint": "/manifest",
+            "functional_endpoints": [
+                {
+                    "path": "/create_issue",
+                    "method": "GET",
+                    "required_params": [
+                        "owner",
+                        "repo",
+                        "title"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                },
+                {
+                    "path": "/get_issue",
+                    "method": "GET",
+                    "required_params": [
+                        "owner",
+                        "repo",
+                        "issue_number"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                },
+                {
+                    "path": "/list_issues",
+                    "method": "GET",
+                    "required_params": [
+                        "owner",
+                        "repo"
+                    ],
+                    "expected_response_field": "status",
+                    "expected_response_value": "success"
+                }
+            ],
+            "env_vars": {
+                "MCP_API_VERSION": {
+                    "required": false,
+                    "default": "v1"
+                }
+            }
+        }
+    }
+}
