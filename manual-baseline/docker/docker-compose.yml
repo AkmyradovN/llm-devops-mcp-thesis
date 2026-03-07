@@ -1,0 +1,28 @@
+# =============================================================================
+# docker-compose.yml — Local testing of both MCP servers
+# =============================================================================
+# Run: docker-compose up --build
+# Jira:   http://localhost:8080/health
+# GitHub: http://localhost:8081/health
+# =============================================================================
+
+version: "3.9"
+
+services:
+  mcp-jira:
+    build: ./jira
+    container_name: mcp-jira
+    ports:
+      - "8080:8000"
+    environment:
+      - MCP_API_VERSION=v1
+    restart: unless-stopped
+
+  mcp-github:
+    build: ./github
+    container_name: mcp-github
+    ports:
+      - "8081:8000"
+    environment:
+      - MCP_API_VERSION=v1
+    restart: unless-stopped
