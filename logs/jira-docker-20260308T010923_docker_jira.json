@@ -1,0 +1,19 @@
+{
+  "run_id": "jira-docker-20260308T010923",
+  "model": "gpt-3.5-turbo",
+  "temperature": 0.2,
+  "duration_secs": 4.436,
+  "tokens_prompt": 603,
+  "tokens_completion": 458,
+  "tokens_total": 1061,
+  "finish_reason": "stop",
+  "timestamp": "2026-03-08T01:09:27.834696+00:00",
+  "parsed": {
+    "dockerfile": "FROM python:3.10-slim\n\nRUN apt-get update && apt-get install -y curl\n\nCOPY requirements.txt /app/requirements.txt\nWORKDIR /app\nRUN pip install -r requirements.txt\nCOPY app.py /app/app.py\n\nEXPOSE 8000\n\nHEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8000/health || exit 1\n\nCMD [\"uvicorn\", \"app:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]",
+    "app_py": "from fastapi import FastAPI, Query\nimport os\nimport datetime\nimport json\n\napp = FastAPI()\n\n@api.get('/health')\ndef get_health():\n    uptime = datetime.datetime.now() - app.start_time\n    return {'status': 'ok', 'service': 'MCP-Jira', 'version': os.getenv('MCP_API_VERSION', 'v1'), 'uptime_seconds': uptime.total_seconds(), 'timestamp': datetime.datetime.now().isoformat()}\n\n@api.get('/manifest')\ndef get_manifest():\n    # Implement manifest endpoint\n\n@api.get('/create_ticket')\ndef create_ticket(project: str = Query(..., description='Project name'), summary: str = Query(..., description='Summary of the ticket'), description: str = Query('', description='Description of the ticket'), priority: str = Query('Medium', description='Priority of the ticket')):\n    # Implement create_ticket endpoint\n\n@api.get('/get_ticket')\ndef get_ticket(ticket_key: str = Query(..., description='Key of the ticket')):\n    # Implement get_ticket endpoint\n\n@api.get('/list_tickets')\ndef list_tickets(project: str = Query(..., description='Project name'), status: str = Query('Open', description='Status of the tickets'), max_results: int = Query(10, description='Maximum number of results to return')):\n    # Implement list_tickets endpoint",
+    "requirements_txt": "fastapi==0.115.6\nuvicorn==0.34.0"
+  },
+  "parse_success": true,
+  "validation_errors": [],
+  "raw_content_length": 1723
+}

@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+.env
+manual-baseline/terraform/personalTestEC2.pem
+manual-baseline/terraform/terraform.tfvars
+manual-baseline/terraform/.terraform
+manual-baseline/terraform/*.tfstate
+manual-baseline/terraform/*.tfstate.backup

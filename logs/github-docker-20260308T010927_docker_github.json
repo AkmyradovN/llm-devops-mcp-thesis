@@ -1,0 +1,19 @@
+{
+  "run_id": "github-docker-20260308T010927",
+  "model": "gpt-3.5-turbo",
+  "temperature": 0.2,
+  "duration_secs": 5.564,
+  "tokens_prompt": 631,
+  "tokens_completion": 539,
+  "tokens_total": 1170,
+  "finish_reason": "stop",
+  "timestamp": "2026-03-08T01:09:33.469763+00:00",
+  "parsed": {
+    "dockerfile": "FROM python:3.10-slim\n\nRUN apt-get update && apt-get install -y curl\n\nCOPY requirements.txt /app/requirements.txt\nWORKDIR /app\nRUN pip install -r requirements.txt\nCOPY app.py /app/app.py\n\nEXPOSE 8000\n\nHEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8000/health || exit 1\n\nCMD [\"uvicorn\", \"app:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]",
+    "app_py": "from fastapi import FastAPI, Query\nimport os\nimport datetime\nimport json\n\napp = FastAPI()\n\n@api.get(\"/health\")\nasync def health():\n    uptime = 3600.0\n    return {\"status\": \"ok\", \"service\": \"MCP-GitHub\", \"version\": os.getenv(\"MCP_API_VERSION\", \"v1\"), \"uptime_seconds\": uptime, \"timestamp\": datetime.datetime.now().isoformat()}\n\n@api.get(\"/manifest\")\nasync def manifest():\n    # Implement manifest endpoint here\n\n@api.get(\"/create_issue\")\nasync def create_issue(owner: str = Query(..., description=\"Owner of the repository\"), repo: str = Query(..., description=\"Name of the repository\"), title: str = Query(..., description=\"Title of the issue\"), body: str = Query('', description=\"Body of the issue\"), labels: str = Query('', description=\"Labels of the issue\")):\n    # Implement create_issue endpoint here\n\n@api.get(\"/get_issue\")\nasync def get_issue(owner: str = Query(..., description=\"Owner of the repository\"), repo: str = Query(..., description=\"Name of the repository\"), issue_number: int = Query(..., description=\"Issue number\")):\n    # Implement get_issue endpoint here\n\n@api.get(\"/list_issues\")\nasync def list_issues(owner: str = Query(..., description=\"Owner of the repository\"), repo: str = Query(..., description=\"Name of the repository\"), state: str = Query('open', description=\"State of the issues\"), max_results: int = Query(10, description=\"Maximum number of results\")):\n    # Implement list_issues endpoint here",
+    "requirements_txt": "fastapi==0.115.6\nuvicorn==0.34.0"
+  },
+  "parse_success": true,
+  "validation_errors": [],
+  "raw_content_length": 1990
+}

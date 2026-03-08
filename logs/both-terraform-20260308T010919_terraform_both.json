@@ -1,0 +1,19 @@
+{
+  "run_id": "both-terraform-20260308T010919",
+  "model": "gpt-3.5-turbo",
+  "temperature": 0.2,
+  "duration_secs": 3.867,
+  "tokens_prompt": 342,
+  "tokens_completion": 426,
+  "tokens_total": 768,
+  "finish_reason": "stop",
+  "timestamp": "2026-03-08T01:09:23.344504+00:00",
+  "parsed": {
+    "main_tf": "provider \"aws\" { region = var.region } data \"aws_ami\" \"ubuntu\" { most_recent = true owners = [\"099720109477\"] filter { name = \"name\" values = [\"ubuntu/images/hvm-ssd/ubuntu-focal-22.04-amd64-server-*\"] } } resource \"aws_instance\" \"mcp_server\" { ami = data.aws_ami.ubuntu.id instance_type = var.instance_type key_name = var.key_name user_data = <<-EOF #!/bin/bash apt update apt install -y docker.io docker-compose usermod -aG docker ubuntu EOF tags = { Name = var.project_name } security_groups = [aws_security_group.mcp_sg.name] } resource \"aws_security_group\" \"mcp_sg\" { name = \"mcp_sg\" vpc_id = var.vpc_id ingress { from_port = 22 to_port = 22 protocol = \"tcp\" cidr_blocks = [\"0.0.0.0/0\"] } ingress { from_port = 80 to_port = 80 protocol = \"tcp\" cidr_blocks = [\"0.0.0.0/0\"] } ingress { from_port = 81 to_port = 81 protocol = \"tcp\" cidr_blocks = [\"0.0.0.0/0\"] } egress { from_port = 0 to_port = 0 protocol = \"-1\" cidr_blocks = [\"0.0.0.0/0\"] } tags = { Name = var.project_name } }",
+    "variables_tf": "variable \"region\" { default = \"eu-central-1\" } variable \"instance_type\" { default = \"t3.micro\" } variable \"key_name\" { } variable \"project_name\" { default = \"mcp-server\" }",
+    "outputs_tf": "output \"public_ip\" { value = aws_instance.mcp_server.public_ip } output \"public_dns\" { value = aws_instance.mcp_server.public_dns }"
+  },
+  "parse_success": true,
+  "validation_errors": [],
+  "raw_content_length": 1397
+}

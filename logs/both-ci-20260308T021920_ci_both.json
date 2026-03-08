@@ -1,0 +1,17 @@
+{
+  "run_id": "both-ci-20260308T021920",
+  "model": "gpt-3.5-turbo",
+  "temperature": 0.2,
+  "duration_secs": 8.059,
+  "tokens_prompt": 596,
+  "tokens_completion": 868,
+  "tokens_total": 1464,
+  "finish_reason": "stop",
+  "timestamp": "2026-03-08T02:19:29.029597+00:00",
+  "parsed": {
+    "deploy_yml": "name: Deploy MCP Servers (LLM-Assisted)\non:\n  push:\n    branches:\n      - llm-assisted\n  workflow_dispatch:\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    steps:\n      - name: Checkout repository\n        uses: actions/checkout@v2\n      - name: Write SSH key to file\n        run: echo \"$EC2_SSH_KEY\" > ssh_key.pem && chmod 600 ssh_key.pem\n      - name: Record deployment start time\n        run: echo \"::set-output name=start_time::$(date +%s)\"\n      - name: SCP MCP-Jira Docker directory\n        run: scp -o StrictHostKeyChecking=no -i ssh_key.pem -r llm-assisted/docker/jira ubuntu@$EC2_HOST:/home/ubuntu/jira\n      - name: SCP MCP-GitHub Docker directory\n        run: scp -o StrictHostKeyChecking=no -i ssh_key.pem -r llm-assisted/docker/github ubuntu@$EC2_HOST:/home/ubuntu/github\n      - name: Build and deploy MCP-Jira\n        run: |\n          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ubuntu@$EC2_HOST << 'EOF'\n          set -e\n          cd /home/ubuntu/jira\n          docker build -t mcp-jira .\n          docker stop mcp-jira || true\n          docker rm mcp-jira || true\n          docker run -d -p 80:8000 --restart unless-stopped --name mcp-jira mcp-jira\n          EOF\n      - name: Build and deploy MCP-GitHub\n        run: |\n          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ubuntu@$EC2_HOST << 'EOF'\n          set -e\n          cd /home/ubuntu/github\n          docker build -t mcp-github .\n          docker stop mcp-github || true\n          docker rm mcp-github || true\n          docker run -d -p 81:8000 --restart unless-stopped --name mcp-github mcp-github\n          EOF\n      - name: Health check for MCP-Jira\n        run: |\n          n=1\n          until [ $n -ge 13 ] || [ $(curl -s -o /dev/null -w '%{http_code}' http://$EC2_HOST:80/health) -eq 200 ]; do\n            sleep 5\n            n=$((n+1))\n          done\n          [ $n -lt 13 ]\n      - name: Health check for MCP-GitHub\n        run: |\n          n=1\n          until [ $n -ge 13 ] || [ $(curl -s -o /dev/null -w '%{http_code}' http://$EC2_HOST:81/health) -eq 200 ]; do\n            sleep 5\n            n=$((n+1))\n          done\n          [ $n -lt 13 ]\n      - name: Functional test for MCP-Jira\n        run: |\n          response=$(curl -s http://$EC2_HOST:80/create_ticket?project=TEST&summary=CI-test&priority=Medium)\n          echo $response | grep -q '\"status\":\"success\"'\n      - name: Functional test for MCP-GitHub\n        run: |\n          response=$(curl -s http://$EC2_HOST:81/create_issue?owner=test&repo=test-repo&title=CI-test)\n          echo $response | grep -q '\"status\":\"success\"'\n      - name: Print deployment summary\n        run: |\n          end_time=$(date +%s)\n          duration=$((end_time - ${{ steps.deploy.outputs.start_time }}))\n          echo \"Deployment took $duration seconds\"\n      - name: Clean up\n        run: rm ssh_key.pem\n      - name: Finalize\n        run: exit 0\n"
+  },
+  "parse_success": true,
+  "validation_errors": [],
+  "raw_content_length": 3012
+}
