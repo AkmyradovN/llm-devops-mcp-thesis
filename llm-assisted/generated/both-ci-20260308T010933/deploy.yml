@@ -1,0 +1,79 @@
+name: Deploy MCP Servers (LLM-Assisted)
+on:
+  push:
+    branches:
+      - llm-assisted
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Write SSH key
+        run: echo "$EC2_SSH_KEY" > ssh_key.pem && chmod 600 ssh_key.pem
+      - name: Record deployment start time
+        run: echo "::set-output name=start_time::$(date +%s)"
+      - name: SCP MCP-Jira Docker directory
+        run: scp -o StrictHostKeyChecking=no -i ssh_key.pem -r llm-assisted/docker/jira ubuntu@$EC2_HOST:/home/ubuntu/jira
+      - name: SCP MCP-GitHub Docker directory
+        run: scp -o StrictHostKeyChecking=no -i ssh_key.pem -r llm-assisted/docker/github ubuntu@$EC2_HOST:/home/ubuntu/github
+      - name: Build and deploy MCP-Jira
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ubuntu@$EC2_HOST << 'EOF'
+          set -e
+          cd /home/ubuntu/jira
+          docker build -t mcp-jira .
+          docker stop mcp-jira || true
+          docker rm mcp-jira || true
+          docker run -d -p 80:8000 --restart unless-stopped --name mcp-jira mcp-jira
+          EOF
+      - name: Build and deploy MCP-GitHub
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ubuntu@$EC2_HOST << 'EOF'
+          set -e
+          cd /home/ubuntu/github
+          docker build -t mcp-github .
+          docker stop mcp-github || true
+          docker rm mcp-github || true
+          docker run -d -p 81:8000 --restart unless-stopped --name mcp-github mcp-github
+          EOF
+      - name: Health check for MCP-Jira
+        run: |
+          for i in {1..12}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://$EC2_HOST:80/health | grep -q 200; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+      - name: Health check for MCP-GitHub
+        run: |
+          for i in {1..12}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://$EC2_HOST:81/health | grep -q 200; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+      - name: Functional test for MCP-Jira
+        run: |
+          if ! curl -s http://$EC2_HOST:80/create_ticket?project=TEST&summary=CI-test&priority=Medium | grep -q '"status":"success"'; then
+            exit 1
+          fi
+      - name: Functional test for MCP-GitHub
+        run: |
+          if ! curl -s http://$EC2_HOST:81/create_issue?owner=test&repo=test-repo&title=CI-test | grep -q '"status":"success"'; then
+            exit 1
+          fi
+      - name: Print deployment summary
+        run: |
+          end_time=$(date +%s)
+          duration=$((end_time - ${{ steps.record_deployment_start_time.outputs.start_time }}))
+          echo "Deployment took $duration seconds"
+      - name: Clean up
+        run: rm -f ssh_key.pem
+      - name: Record deployment start time
+        id: record_deployment_start_time
+        run: echo "::set-output name=start_time::$(date +%s)"

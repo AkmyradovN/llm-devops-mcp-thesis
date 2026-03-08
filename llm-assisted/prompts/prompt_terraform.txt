@@ -1,0 +1,21 @@
+You are a senior DevOps engineer. Generate a complete Terraform configuration that provisions AWS infrastructure for hosting an MCP (Model Context Protocol) server.
+
+REQUIREMENTS:
+- Provider: AWS, region: {region}
+- EC2 instance: {instance_type}, Ubuntu 22.04 LTS (use the Canonical AMI owner ID 099720109477 with a data source to find the latest AMI automatically)
+- Security group: allow inbound on ports 22 (SSH), {jira_port} (MCP-Jira), {github_port} (MCP-GitHub). Allow all outbound.
+- Key pair: reference an existing key pair via a variable named "key_name"
+- User-data script: install Docker and docker-compose on first boot, add the ubuntu user to the docker group
+- Outputs: public_ip and public_dns of the EC2 instance
+- Variables: region, instance_type, key_name, project_name (with sensible defaults)
+- All resources should be tagged with the project_name variable
+
+TARGET SERVER: {server_name}
+API VERSION: {api_version}
+
+Return your response as a single JSON object with exactly these keys:
+- "main_tf": the complete contents of main.tf as a string
+- "variables_tf": the complete contents of variables.tf as a string
+- "outputs_tf": the complete contents of outputs.tf as a string
+
+Do NOT include any explanation or markdown formatting. Return ONLY valid JSON.

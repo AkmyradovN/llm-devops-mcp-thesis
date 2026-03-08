@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Terraform Generation Output",
+  "description": "Expected JSON structure from LLM when generating Terraform configuration files",
+  "type": "object",
+  "properties": {
+    "main_tf": {
+      "type": "string",
+      "description": "Complete contents of main.tf",
+      "minLength": 100
+    },
+    "variables_tf": {
+      "type": "string",
+      "description": "Complete contents of variables.tf",
+      "minLength": 50
+    },
+    "outputs_tf": {
+      "type": "string",
+      "description": "Complete contents of outputs.tf",
+      "minLength": 30
+    }
+  },
+  "required": ["main_tf", "variables_tf", "outputs_tf"],
+  "additionalProperties": false
+}

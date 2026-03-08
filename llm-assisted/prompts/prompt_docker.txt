@@ -1,0 +1,37 @@
+You are a senior DevOps engineer. Generate a complete Dockerfile and FastAPI application for an MCP (Model Context Protocol) server.
+
+SERVER: {server_name}
+SERVICE NAME: {service_name}
+API VERSION: {api_version}
+HOST PORT: {host_port}
+CONTAINER PORT: 8000
+
+REQUIREMENTS FOR THE DOCKERFILE:
+- Base image: python:3.10-slim
+- Install curl (needed for health checks)
+- Copy and install dependencies from requirements.txt
+- Copy app.py into the container
+- EXPOSE port 8000
+- Include a HEALTHCHECK directive that curls /health on localhost:8000
+- Entrypoint: run uvicorn on host 0.0.0.0 port 8000
+
+REQUIREMENTS FOR THE APPLICATION (app.py):
+- Use FastAPI
+- Read an environment variable MCP_API_VERSION (default: "{api_version}")
+- Implement these endpoints:
+  1. GET /health — returns JSON: {{"status": "ok", "service": "{service_name}", "version": <api_version>, "uptime_seconds": <float>, "timestamp": <iso_datetime>}}
+  2. GET /manifest — returns JSON describing the server capabilities: name, version, description, list of endpoints with their paths/methods/parameters, required environment variables, and health check path
+  3. {functional_endpoints_description}
+- All functional endpoints must return a JSON object containing "status": "success" and "api_version": <api_version>
+- Use proper FastAPI Query parameters with descriptions
+
+REQUIREMENTS FOR requirements.txt:
+- fastapi==0.115.6
+- uvicorn==0.34.0
+
+Return your response as a single JSON object with exactly these keys:
+- "dockerfile": the complete Dockerfile contents as a string
+- "app_py": the complete app.py contents as a string
+- "requirements_txt": the complete requirements.txt contents as a string
+
+Do NOT include any explanation or markdown formatting. Return ONLY valid JSON.
