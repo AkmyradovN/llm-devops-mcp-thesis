@@ -6,3 +6,4 @@ manual-baseline/terraform/terraform.tfvars
 manual-baseline/terraform/.terraform
 manual-baseline/terraform/*.tfstate
 manual-baseline/terraform/*.tfstate.backup
+manual-baseline/terraform/.terraform.lock.hcl
