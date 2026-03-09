@@ -1,9 +1,3 @@
-# results.csv — Column Reference Guide
-# =========================================================================
-# This file explains every column in results.csv and how to fill it.
-# Keep this file in evaluation/ alongside results.csv for reference.
-# =========================================================================
-
 ## Identity Columns
 
 | Column | Type | How to Fill |

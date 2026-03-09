@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-plotting.py — Generate thesis-ready charts from experiment results
+ Generate thesis-ready charts from experiment results
 
 Produces boxplots, bar charts, and comparison plots using matplotlib only.
 
