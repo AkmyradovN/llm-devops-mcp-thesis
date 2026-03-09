@@ -1,32 +1,10 @@
 #!/usr/bin/env python3
-"""
-run_experiment.py — Full experiment orchestration
-=============================================================================
-Runs a single complete experiment cycle for one (server, approach, phase)
-combination. Chains together: generation (LLM only) → deployment → health
-check → functional test → completeness check → writes a row to results.csv.
-
-Usage:
-    # Run a manual baseline experiment for Jira, Phase A
-    python run_experiment.py --server jira --approach manual --phase A_initial
-
-    # Run an LLM-assisted experiment for GitHub, Phase A
-    python run_experiment.py --server github --approach llm --phase A_initial
-
-    # Run all Phase A experiments (both servers, both approaches)
-    python run_experiment.py --all-phase-a
-
-    # Dry run (print what would happen without executing)
-    python run_experiment.py --server jira --approach llm --phase A_initial --dry-run
-
-Required environment variables:
-    EC2_IP        — Public IP of the EC2 instance
-    PEM_PATH      — Path to the SSH private key file
-    OPENAI_API_KEY — (LLM runs only) OpenAI API key
-
-Part of the MSc thesis evaluation framework.
-=============================================================================
-"""
+# Experiment orchestration for Phase A: runs generation (LLM) → deploy → health → functional test → results
+# Requires: EC2_IP, PEM_PATH env vars; OPENAI_API_KEY for LLM runs.
+#
+# Usage:
+#   python run_experiment.py --server jira --approach manual --phase A_initial
+#   python run_experiment.py --all-phase-a --repeat 10
 
 import argparse
 import csv
@@ -37,7 +15,6 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-
 
 # =============================================================================
 # Configuration
@@ -63,7 +40,6 @@ CSV_HEADERS = [
     "tokens_total", "llm_cost_eur", "total_cost_eur", "notes",
 ]
 
-
 def get_run_count(server: str, approach: str, phase: str) -> int:
     """Count existing runs for this combination to determine the next run number."""
     if not RESULTS_CSV.exists():
@@ -78,7 +54,6 @@ def get_run_count(server: str, approach: str, phase: str) -> int:
                 count += 1
     return count
 
-
 def ensure_csv_exists():
     """Create results.csv with headers if it doesn't exist or is empty."""
     RESULTS_CSV.parent.mkdir(parents=True, exist_ok=True)
@@ -88,7 +63,6 @@ def ensure_csv_exists():
             writer.writerow(CSV_HEADERS)
         print(f"  Created {RESULTS_CSV} with headers")
 
-
 def append_row(row: dict):
     """Append a single row to results.csv."""
     ensure_csv_exists()
@@ -96,7 +70,6 @@ def append_row(row: dict):
         writer = csv.DictWriter(f, fieldnames=CSV_HEADERS)
         writer.writerow(row)
     print(f"  ✓ Row written to {RESULTS_CSV}")
-
 
 def run_cmd(cmd: str, description: str, capture: bool = True) -> tuple[int, str]:
     """Run a shell command and return (exit_code, output)."""
@@ -112,10 +85,8 @@ def run_cmd(cmd: str, description: str, capture: bool = True) -> tuple[int, str]
                 print(f"    {line}")
     return result.returncode, output
 
-
-# =============================================================================
 # Step functions
-# =============================================================================
+
 
 def step_generate_llm(server: str, run_id: str) -> dict:
     """Generate artefacts using the LLM pipeline. Returns generation metadata."""
@@ -188,7 +159,6 @@ def step_generate_llm(server: str, run_id: str) -> dict:
         "generated_dirs": [str(d) for d in latest_dirs],
     }
 
-
 def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
     """Deploy containers to EC2. Returns deployment metadata."""
     print(f"\n{'─'*60}")
@@ -198,7 +168,7 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
     start = time.perf_counter()
     ssh_opts = "-o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
-    # ── Resolve source directories for each service ──
+    # Resolve source directories for each service
     sources = {}
     for svc in ["jira", "github"]:
         if approach == "manual":
@@ -241,7 +211,7 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
             elif approach == "manual" and "Manual Baseline" not in first_lines:
                 print(f"  WARNING: {svc}/app.py doesn't contain 'Manual Baseline' marker")
 
-    # ── Clean old files and containers on EC2 ──
+    # Clean old files and containers on EC2
     print(f"  Cleaning old deployments on EC2...")
     run_cmd(
         f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
@@ -251,7 +221,7 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
         "Stopping containers and removing old files..."
     )
 
-    # ── Copy files to EC2 ──
+    # Copy files to EC2
     for svc, src in sources.items():
         exit_code, output = run_cmd(
             f"scp {ssh_opts} -i {pem_path} -r {src} ubuntu@{ec2_ip}:/home/ubuntu/{svc}",
@@ -260,7 +230,7 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
         if exit_code != 0:
             print(f"  ERROR: SCP failed for {svc}")
 
-    # ── Verify files were copied correctly ──
+    # Verify files were copied correctly
     print(f"  Verifying deployed files...")
     _, verify_out = run_cmd(
         f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
@@ -272,7 +242,7 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
         for line in verify_out.strip().split("\n")[:10]:
             print(f"    {line}")
 
-    # ── Build (no cache) and run containers ──
+    # Build (no cache) and run containers
     for svc, port in [("jira", JIRA_PORT), ("github", GITHUB_PORT)]:
         run_cmd(
             f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
@@ -283,7 +253,6 @@ def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
 
     duration = time.perf_counter() - start
     return {"t_pipeline_secs": round(duration, 1)}
-
 
 def step_health_check(ec2_ip: str) -> dict:
     """Run health checks. Returns health check results."""
@@ -319,7 +288,6 @@ def step_health_check(ec2_ip: str) -> dict:
 
     both_pass = all(results.values())
     return {"health_endpoint_pass": 1 if both_pass else 0, "per_server": results}
-
 
 def step_functional_test(ec2_ip: str) -> dict:
     """Run functional endpoint tests."""
@@ -362,7 +330,6 @@ def step_functional_test(ec2_ip: str) -> dict:
                 all_pass = False
 
     return {"functional_endpoint_pass": 1 if all_pass else 0}
-
 
 def step_completeness_check(server: str, approach: str) -> dict:
     """Run check_completeness.py and parse results."""
@@ -424,10 +391,8 @@ def step_completeness_check(server: str, approach: str) -> dict:
 
     return {"missing_fields_count": missing, "correctness_score": score}
 
-
-# =============================================================================
 # Main experiment runner
-# =============================================================================
+
 
 def run_single_experiment(
     server: str, approach: str, phase: str,
@@ -480,9 +445,9 @@ def run_single_experiment(
         row["llm_cost_eur"] = round(gen_result["tokens_total"] / 1000 * 0.002, 4)
     else:
         row["t_gen_secs"] = 0
-        # ─────────────────────────────────────────────────────────────
+        # 
         # MANUAL AUTHORING TIME — Total Development Lead Time
-        # ─────────────────────────────────────────────────────────────
+        # 
         # This is the realistic time a DevOps engineer would spend to
         # research, write, test, and debug the full configuration from
         # scratch (Terraform + Dockerfile + CI/CD YAML + app code).
@@ -495,7 +460,7 @@ def run_single_experiment(
         #
         # Using 1800 seconds (30 min) as a CONSERVATIVE lower bound.
         # This is justified in the Methodology chapter (Section 4.3).
-        # ─────────────────────────────────────────────────────────────
+        # 
         MANUAL_AUTHOR_SECS = 1800
         row["t_author_secs"] = MANUAL_AUTHOR_SECS
         row["tokens_prompt"] = 0
@@ -558,7 +523,7 @@ def run_single_experiment(
     )
 
     # Cost estimation
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Model B: Ephemeral instance cost (terraform apply → destroy)
     # Based on research: a full lifecycle takes ~5 min for t2.micro.
     # Costs include: EC2 compute + public IPv4 surcharge + EBS storage.
@@ -571,7 +536,7 @@ def run_single_experiment(
     #
     # Human labor cost (for total development cost comparison):
     #   Junior/mid DevOps engineer in EU: €30/hr (conservative)
-    # ─────────────────────────────────────────────────────────────────
+    # 
     EC2_COMBINED_HOURLY_EUR = 0.018   # compute + IPv4 + EBS
     HUMAN_HOURLY_EUR = 30.0           # DevOps engineer labor rate
 
@@ -625,7 +590,6 @@ def run_single_experiment(
 
     return row
 
-
 def main():
     parser = argparse.ArgumentParser(description="Run a single experiment cycle")
     parser.add_argument("--server", choices=["jira", "github"])
@@ -674,7 +638,6 @@ def main():
                 server=args.server, approach=args.approach, phase=args.phase,
                 ec2_ip=ec2_ip, pem_path=pem_path, dry_run=args.dry_run
             )
-
 
 if __name__ == "__main__":
     main()
