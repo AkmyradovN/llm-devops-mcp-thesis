@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 test_endpoints.py — Functional endpoint verification
-=============================================================================
+
 Sends test payloads to all MCP server endpoints and validates response
 structure and content against expected_config.json.
 
 Usage:
     python test_endpoints.py --host 52.59.191.104
     python test_endpoints.py --host 52.59.191.104 --config docs/expected_config.json
-=============================================================================
+
 """
 
 import argparse
@@ -18,7 +18,6 @@ import time
 import urllib.request
 import urllib.error
 import urllib.parse
-
 
 def fetch(url: str, timeout: int = 10) -> tuple[int, dict | None, float]:
     """Make an HTTP GET request. Returns (status_code, parsed_json, duration_ms)."""
@@ -39,7 +38,6 @@ def fetch(url: str, timeout: int = 10) -> tuple[int, dict | None, float]:
     except Exception as e:
         duration = (time.perf_counter() - start) * 1000
         return 0, None, duration
-
 
 def test_server(host: str, port: int, server_config: dict) -> dict:
     """Test all endpoints for a single MCP server."""
@@ -122,7 +120,6 @@ def test_server(host: str, port: int, server_config: dict) -> dict:
 
     return results
 
-
 def main():
     parser = argparse.ArgumentParser(description="Test MCP server functional endpoints")
     parser.add_argument("--host", required=True, help="EC2 public IP")
@@ -179,7 +176,6 @@ def main():
         print(json.dumps(all_results, indent=2))
 
     sys.exit(0 if total_failed == 0 else 1)
-
 
 if __name__ == "__main__":
     main()

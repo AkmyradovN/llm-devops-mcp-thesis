@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 run_llm.py — LLM Artefact Generation for MCP Server Deployment
-=============================================================================
+
 Calls GPT-3.5 Turbo to generate DevOps artefacts (Terraform, Docker, CI/CD)
 using structured JSON output. Records timing, token usage, and saves results
 for reproducibility and evaluation.
@@ -25,7 +25,7 @@ Usage:
 Part of the MSc thesis:
 "LLM-Assisted DevOps for Automated Deployment and Management of MCP
  Servers on Cloud Platforms"
-=============================================================================
+
 """
 
 import argparse
@@ -48,7 +48,6 @@ except ImportError:
     print("WARNING: jsonschema not installed. Schema validation will be skipped.")
     print("Install with: pip install jsonschema")
     jsonschema = None
-
 
 # =============================================================================
 # Configuration
@@ -117,7 +116,6 @@ SHARED_PARAMS = {
     "github_docker_path": "llm-assisted/docker/github",
 }
 
-
 # =============================================================================
 # Core Functions
 # =============================================================================
@@ -153,14 +151,12 @@ def load_prompt(artefact: str, server: str, error_context: str = None) -> str:
 
     return prompt
 
-
 def load_schema(artefact: str) -> dict | None:
     """Load the JSON schema for output validation."""
     schema_file = SCHEMAS_DIR / f"{artefact}.json"
     if schema_file.exists():
         return json.loads(schema_file.read_text())
     return None
-
 
 def call_llm(prompt: str, run_id: str) -> dict:
     """
@@ -224,7 +220,6 @@ def call_llm(prompt: str, run_id: str) -> dict:
 
     return result
 
-
 def validate_output(parsed: dict, artefact: str) -> list[str]:
     """Validate parsed JSON against the schema. Returns list of errors."""
     if jsonschema is None:
@@ -243,7 +238,6 @@ def validate_output(parsed: dict, artefact: str) -> list[str]:
         errors.append(f"Schema error: {e.message}")
 
     return errors
-
 
 def save_files(parsed: dict, artefact: str, server: str, run_id: str) -> list[str]:
     """Save generated artefact files to disk. Returns list of saved file paths."""
@@ -285,7 +279,6 @@ def save_files(parsed: dict, artefact: str, server: str, run_id: str) -> list[st
 
     return saved
 
-
 def save_log(result: dict, artefact: str, server: str, run_id: str):
     """Save the full generation log (prompt, response, timing, tokens) to JSON."""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -297,7 +290,6 @@ def save_log(result: dict, artefact: str, server: str, run_id: str):
 
     log_file.write_text(json.dumps(log_data, indent=2, default=str))
     return str(log_file)
-
 
 # =============================================================================
 # Main
@@ -366,7 +358,6 @@ def run_generation(artefact: str, server: str, error_context: str = None):
 
     return result
 
-
 def run_with_retries(artefact: str, server: str, max_retries: int = MAX_RETRIES):
     """Run generation with self-correction retries on failure."""
     error_context = None
@@ -394,7 +385,6 @@ def run_with_retries(artefact: str, server: str, max_retries: int = MAX_RETRIES)
     print(f"\nFAILED after {max_retries} attempts.")
     result["total_attempts"] = max_retries
     return result
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -488,7 +478,6 @@ def main():
     print(f"   tokens_completion = {sum(r.get('tokens_completion', 0) for r in all_results)}")
     print(f"   tokens_total     = {total_tokens}")
     print(f"   llm_cost_eur     = {total_tokens / 1000 * 0.002:.4f}")
-
 
 if __name__ == "__main__":
     main()

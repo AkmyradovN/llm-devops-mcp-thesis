@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 metrics.py — Compute derived metrics and summary statistics
-=============================================================================
+
 Reads evaluation/results.csv, computes derived metrics (speedup, success_rate,
 confidence intervals), runs statistical tests, and prints summary tables.
 
@@ -9,7 +9,7 @@ Usage:
     python metrics.py --summary                  # Print summary tables
     python metrics.py --summary --output report  # Save to evaluation/report/
     python metrics.py --stats                    # Run statistical tests (H1-H4)
-=============================================================================
+
 """
 
 import argparse
@@ -29,10 +29,8 @@ except ImportError:
     print("WARNING: scipy not installed. Statistical tests will be skipped.")
     print("Install with: pip install scipy")
 
-
 RESULTS_FILE = Path("evaluation/results.csv")
 REPORT_DIR = Path("evaluation/report")
-
 
 def load_data(filepath: Path) -> list[dict]:
     """Load results.csv into a list of dicts with type conversion."""
@@ -61,7 +59,6 @@ def load_data(filepath: Path) -> list[dict]:
 
     return rows
 
-
 def group_by(data: list[dict], *keys) -> dict:
     """Group rows by one or more keys."""
     groups = defaultdict(list)
@@ -71,7 +68,6 @@ def group_by(data: list[dict], *keys) -> dict:
             key = key[0]
         groups[key].append(row)
     return dict(groups)
-
 
 def safe_median(values: list) -> float | None:
     """Compute median, ignoring None values."""
@@ -83,11 +79,9 @@ def safe_median(values: list) -> float | None:
         return (clean[n // 2 - 1] + clean[n // 2]) / 2
     return clean[n // 2]
 
-
 def safe_mean(values: list) -> float | None:
     clean = [v for v in values if v is not None]
     return sum(clean) / len(clean) if clean else None
-
 
 def safe_std(values: list) -> float | None:
     clean = [v for v in values if v is not None]
@@ -97,7 +91,6 @@ def safe_std(values: list) -> float | None:
     variance = sum((x - mean) ** 2 for x in clean) / (len(clean) - 1)
     return variance ** 0.5
 
-
 def iqr(values: list) -> tuple[float, float] | None:
     clean = sorted(v for v in values if v is not None)
     if len(clean) < 4:
@@ -106,14 +99,13 @@ def iqr(values: list) -> tuple[float, float] | None:
     q3 = clean[3 * len(clean) // 4]
     return q1, q3
 
-
 def print_summary(data: list[dict]):
     """Print summary tables with time breakdown and cost analysis."""
 
     phase_a = [r for r in data if r.get("phase") == "A_initial"]
     by_cell = group_by(phase_a, "server", "approach")
 
-    # ── Table 1: Time & Correctness ──
+    # Table 1: Time & Correctness
     print(f"\n{'='*100}")
     print("  TABLE 1 — Summary by Scenario (Phase A, Initial Deployment)")
     print(f"{'='*100}")
@@ -155,7 +147,7 @@ def print_summary(data: list[dict]):
         else:
             print(f"  {server:<10} {approach:<10} {n:>4}   (insufficient data)")
 
-    # ── Speedup summary ──
+    # Speedup summary
     print(f"\n  {'─'*60}")
     print(f"  SPEEDUP ANALYSIS (Total Development Lead Time)")
     print(f"  {'─'*60}")
@@ -170,7 +162,7 @@ def print_summary(data: list[dict]):
                 print(f"  {server.upper():<10} Manual: {manual_total:.0f}s  →  LLM: {llm_total:.0f}s  "
                       f"= {speedup:.1f}× faster")
 
-    # ── Table 1b: Cost Breakdown ──
+    # Table 1b: Cost Breakdown
     HUMAN_HOURLY_EUR = 30.0
     print(f"\n{'='*100}")
     print(f"  TABLE 1b — Cost Breakdown per Successful Deployment (EUR)")
@@ -203,7 +195,7 @@ def print_summary(data: list[dict]):
               f"{mean_aws:>12.4f} {mean_llm:>12.4f} "
               f"{mean_labor:>13.2f} {mean_total:>12.4f}")
 
-    # ── Table 2 — Phase B ──
+    # Table 2 — Phase B
     phase_b = [r for r in data if r.get("phase") == "B_change"]
     if phase_b:
         print(f"\n{'='*80}")
@@ -232,7 +224,6 @@ def print_summary(data: list[dict]):
             s_str = f"{sr:>9.0%}" if sr is not None else f"{'N/A':>9}"
 
             print(f"  {server:<10} {approach:<10} {n:>4} {p_str} {e_str} {a_str} {s_str}")
-
 
 def print_stats(data: list[dict]):
     """Run hypothesis tests H1-H4."""
@@ -302,7 +293,7 @@ def print_stats(data: list[dict]):
             print(f"    Manual: {manual_rate:.0%}, LLM: {llm_rate:.0%}, |Δ|: {delta:.0%}")
             print(f"    Decision: {'SUPPORTED' if llm_rate >= 0.80 and delta <= 0.10 else 'NOT SUPPORTED'}")
 
-    # ── H4: Adaptability (Phase B) ──
+    # H4: Adaptability (Phase B)
     phase_b = [r for r in data if r.get("phase") == "B_change"]
     if phase_b:
         print(f"\n  {'═'*50}")
@@ -356,7 +347,6 @@ def print_stats(data: list[dict]):
                 improvement = (llm_adapt_rate or 0) - (phase_a_rate or 0)
                 print(f"    Phase A → Phase B improvement: {phase_a_rate:.0%} → {llm_adapt_rate:.0%} (+{improvement:.0%})")
 
-
 def save_report(data: list[dict], output_dir: Path):
     """Save summary as JSON for programmatic access."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -370,7 +360,6 @@ def save_report(data: list[dict], output_dir: Path):
     out_path = output_dir / "summary.json"
     out_path.write_text(json.dumps(summary, indent=2))
     print(f"\nSummary saved to {out_path}")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Compute metrics and summary statistics")
@@ -392,7 +381,6 @@ def main():
 
     if args.output:
         save_report(data, Path(args.output))
-
 
 if __name__ == "__main__":
     main()

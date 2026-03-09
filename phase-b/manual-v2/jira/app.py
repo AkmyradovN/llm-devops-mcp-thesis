@@ -1,12 +1,6 @@
-# =============================================================================
-# app.py — MCP-Jira Server v2 (Manual Baseline — Phase B Adaptation)
-# =============================================================================
-# Changes from v1:
-#   - All functional endpoints prefixed with /v2/
-#   - Health response includes "api_status": "stable"
-#   - New env var: MCP_SERVER_ENV
-#   - All responses include "environment" field
-# =============================================================================
+# MCP-Jira Server v2
+# Changes from v1: endpoints prefixed with /v2/, health returns api_status/environment fields
+
 
 import os
 import time

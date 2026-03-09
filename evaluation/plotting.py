@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
 plotting.py — Generate thesis-ready charts from experiment results
-=============================================================================
+
 Produces boxplots, bar charts, and comparison plots using matplotlib only.
 
 Usage:
     python plotting.py                           # Default: read evaluation/results.csv
     python plotting.py --csv results.csv --output evaluation/report/
-=============================================================================
+
 """
 
 import argparse
@@ -26,14 +26,12 @@ except ImportError:
     print("ERROR: matplotlib not installed. Run: pip install matplotlib")
     sys.exit(1)
 
-
 RESULTS_FILE = Path("evaluation/results.csv")
 OUTPUT_DIR = Path("evaluation/report")
 
 # Thesis-appropriate style
 COLORS = {"manual": "#2B579A", "llm": "#E87D2F"}
 LABELS = {"manual": "Manual Baseline", "llm": "LLM-Assisted"}
-
 
 def load_data(filepath: Path) -> list[dict]:
     rows = []
@@ -52,14 +50,12 @@ def load_data(filepath: Path) -> list[dict]:
             rows.append(row)
     return rows
 
-
 def extract(data, server, approach, phase, field):
     return [r[field] for r in data
             if r.get("server") == server
             and r.get("approach") == approach
             and r.get("phase") == phase
             and r.get(field) is not None]
-
 
 def setup_style():
     plt.rcParams.update({
@@ -71,7 +67,6 @@ def setup_style():
         "savefig.dpi": 150,
         "savefig.bbox": "tight",
     })
-
 
 def plot_time_comparison(data, output_dir):
     """Boxplot: deployment time — Manual vs LLM, per server."""
@@ -119,7 +114,6 @@ def plot_time_comparison(data, output_dir):
     fig.savefig(out)
     plt.close(fig)
     print(f"  Saved: {out}")
-
 
 def plot_correctness(data, output_dir):
     """Bar chart: correctness score with error bars."""
@@ -171,7 +165,6 @@ def plot_correctness(data, output_dir):
     plt.close(fig)
     print(f"  Saved: {out}")
 
-
 def plot_reliability(data, output_dir):
     """Stacked bar: success vs failure counts."""
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -211,7 +204,6 @@ def plot_reliability(data, output_dir):
     fig.savefig(out)
     plt.close(fig)
     print(f"  Saved: {out}")
-
 
 def plot_cost(data, output_dir):
     """Bar chart: cost breakdown per approach."""
@@ -255,7 +247,6 @@ def plot_cost(data, output_dir):
     plt.close(fig)
     print(f"  Saved: {out}")
 
-
 def main():
     setup_style()
 
@@ -277,7 +268,6 @@ def main():
     plot_cost(data, output_dir)
 
     print(f"\nDone. All charts saved to {output_dir}/")
-
 
 if __name__ == "__main__":
     main()

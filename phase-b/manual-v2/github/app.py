@@ -1,6 +1,4 @@
-# =============================================================================
-# app.py — MCP-GitHub Server v2 (Manual Baseline — Phase B Adaptation)
-# =============================================================================
+# MCP-GitHub Server v2 - same structure as v1 with all endpoints at /v2/ prefix
 
 import os
 import time

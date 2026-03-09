@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 check_completeness.py — Automated correctness evaluation
-=============================================================================
+
 Compares generated artefacts against expected_config.json and the correctness
 checklist. Outputs per-check pass/fail and computes correctness_score.
 
@@ -13,7 +13,7 @@ Usage:
     python check_completeness.py --server github --tf-dir ... --docker-dir ... --ci-yaml ...
 
 Part of the MSc thesis evaluation framework.
-=============================================================================
+
 """
 
 import argparse
@@ -34,8 +34,7 @@ def read_file(path: str) -> str:
     except FileNotFoundError:
         return ""
 
-
-# ── Terraform checks ──
+# Terraform checks
 
 def check_t1_provider(tf_content: str) -> tuple[bool, str]:
     """T1: AWS provider block with region variable reference."""
@@ -44,14 +43,12 @@ def check_t1_provider(tf_content: str) -> tuple[bool, str]:
     ok = has_provider and has_region
     return ok, f"provider block: {has_provider}, region var: {has_region}"
 
-
 def check_t2_instance_type(tf_content: str) -> tuple[bool, str]:
     """T2: EC2 instance with t2.micro."""
     has_instance = bool(re.search(r'resource\s+"aws_instance"', tf_content))
     has_t2_micro = "t2.micro" in tf_content or "var.instance_type" in tf_content
     ok = has_instance and has_t2_micro
     return ok, f"aws_instance resource: {has_instance}, t2.micro ref: {has_t2_micro}"
-
 
 def check_t3_ami(tf_content: str) -> tuple[bool, str]:
     """T3: AMI references Ubuntu 22.04 (jammy)."""
@@ -61,31 +58,26 @@ def check_t3_ami(tf_content: str) -> tuple[bool, str]:
     ok = has_jammy or (has_canonical and has_data_source)
     return ok, f"jammy/22.04: {has_jammy}, canonical owner: {has_canonical}, data source: {has_data_source}"
 
-
 def check_t4_port22(tf_content: str) -> tuple[bool, str]:
     """T4: Security group allows port 22."""
     # Look for port 22 in ingress rules
     ok = bool(re.search(r'from_port\s*=\s*22', tf_content)) or '"22"' in tf_content
     return ok, f"port 22 ingress: {ok}"
 
-
 def check_t5_port80(tf_content: str) -> tuple[bool, str]:
     """T5: Security group allows port 80."""
     ok = bool(re.search(r'from_port\s*=\s*80', tf_content)) or '"80"' in tf_content
     return ok, f"port 80 ingress: {ok}"
-
 
 def check_t6_port81(tf_content: str) -> tuple[bool, str]:
     """T6: Security group allows port 81."""
     ok = bool(re.search(r'from_port\s*=\s*81', tf_content)) or '"81"' in tf_content
     return ok, f"port 81 ingress: {ok}"
 
-
 def check_t7_key_pair(tf_content: str) -> tuple[bool, str]:
     """T7: Key pair reference present."""
     ok = "key_name" in tf_content
     return ok, f"key_name reference: {ok}"
-
 
 def check_t8_output_ip(tf_content: str, outputs_content: str) -> tuple[bool, str]:
     """T8: Output block exports public_ip."""
@@ -93,14 +85,12 @@ def check_t8_output_ip(tf_content: str, outputs_content: str) -> tuple[bool, str
     ok = "public_ip" in combined and bool(re.search(r'output\s+"public_ip"', combined))
     return ok, f"public_ip output: {ok}"
 
-
-# ── Dockerfile checks ──
+# Dockerfile checks
 
 def check_d1_base_image(dockerfile: str) -> tuple[bool, str]:
     """D1: Base image is python:3.10-slim."""
     ok = bool(re.search(r'FROM\s+python:3\.10', dockerfile))
     return ok, f"python:3.10 base: {ok}"
-
 
 def check_d2_requirements(dockerfile: str) -> tuple[bool, str]:
     """D2: requirements.txt copied and pip install executed."""
@@ -109,18 +99,15 @@ def check_d2_requirements(dockerfile: str) -> tuple[bool, str]:
     ok = has_copy and has_pip
     return ok, f"requirements copy: {has_copy}, pip install: {has_pip}"
 
-
 def check_d3_app_copy(dockerfile: str) -> tuple[bool, str]:
     """D3: app.py copied into container."""
     ok = "app.py" in dockerfile or "COPY ." in dockerfile
     return ok, f"app.py in container: {ok}"
 
-
 def check_d4_expose(dockerfile: str) -> tuple[bool, str]:
     """D4: Port 8000 exposed."""
     ok = bool(re.search(r'EXPOSE\s+8000', dockerfile))
     return ok, f"EXPOSE 8000: {ok}"
-
 
 def check_d5_entrypoint(dockerfile: str) -> tuple[bool, str]:
     """D5: Entrypoint runs uvicorn on 0.0.0.0:8000."""
@@ -129,7 +116,6 @@ def check_d5_entrypoint(dockerfile: str) -> tuple[bool, str]:
     ok = has_uvicorn and has_host
     return ok, f"uvicorn: {has_uvicorn}, 0.0.0.0: {has_host}"
 
-
 def check_d6_healthcheck(dockerfile: str) -> tuple[bool, str]:
     """D6: HEALTHCHECK directive targeting /health."""
     has_healthcheck = "HEALTHCHECK" in dockerfile
@@ -137,14 +123,12 @@ def check_d6_healthcheck(dockerfile: str) -> tuple[bool, str]:
     ok = has_healthcheck and has_health_path
     return ok, f"HEALTHCHECK: {has_healthcheck}, /health path: {has_health_path}"
 
-
-# ── CI/CD checks ──
+# CI/CD checks
 
 def check_c1_trigger(yaml_content: str, branch: str) -> tuple[bool, str]:
     """C1: Trigger on push to correct branch."""
     ok = branch in yaml_content and "push" in yaml_content
     return ok, f"push trigger on '{branch}': {ok}"
-
 
 def check_c2_ssh_setup(yaml_content: str) -> tuple[bool, str]:
     """C2: SSH key setup step."""
@@ -153,13 +137,11 @@ def check_c2_ssh_setup(yaml_content: str) -> tuple[bool, str]:
     ok = has_ssh_key and has_chmod
     return ok, f"SSH key secret: {has_ssh_key}, chmod 600: {has_chmod}"
 
-
 def check_c3_docker_build(yaml_content: str, server: str) -> tuple[bool, str]:
     """C3: Docker build for the target server."""
     server_name = "mcp-jira" if server == "jira" else "mcp-github"
     ok = "docker build" in yaml_content and server_name in yaml_content
     return ok, f"docker build {server_name}: {ok}"
-
 
 def check_c4_port_mapping(yaml_content: str, server: str) -> tuple[bool, str]:
     """C4: Container run with correct port mapping."""
@@ -170,7 +152,6 @@ def check_c4_port_mapping(yaml_content: str, server: str) -> tuple[bool, str]:
         ok = "81:8000" in yaml_content or "81:" in yaml_content
         return ok, f"port 81->8000 mapping: {ok}"
 
-
 def check_c5_health_check(yaml_content: str, server: str) -> tuple[bool, str]:
     """C5: Health check verifies HTTP 200."""
     port = "80" if server == "jira" else "81"
@@ -180,15 +161,13 @@ def check_c5_health_check(yaml_content: str, server: str) -> tuple[bool, str]:
     ok = has_curl and has_health
     return ok, f"curl /health: {has_curl and has_health}, port {port}: {has_port}"
 
-
 def check_c6_fail_on_unhealthy(yaml_content: str) -> tuple[bool, str]:
     """C6: Pipeline fails if health check fails."""
     has_exit = "exit 1" in yaml_content
     ok = has_exit
     return ok, f"exit 1 on failure: {ok}"
 
-
-# ── Application checks ──
+# Application checks
 
 def check_a1_health_endpoint(app_content: str, service_name: str) -> tuple[bool, str]:
     """A1: /health returns correct JSON."""
@@ -198,12 +177,10 @@ def check_a1_health_endpoint(app_content: str, service_name: str) -> tuple[bool,
     ok = has_route and has_status and has_service
     return ok, f"/health route: {has_route}, status ok: {has_status}, service name: {has_service}"
 
-
 def check_a2_manifest(app_content: str) -> tuple[bool, str]:
     """A2: /manifest endpoint present."""
     ok = "/manifest" in app_content
     return ok, f"/manifest endpoint: {ok}"
-
 
 def check_a3_functional(app_content: str, server: str) -> tuple[bool, str]:
     """A3: Functional endpoint returns success."""
@@ -222,19 +199,16 @@ def check_a3_functional(app_content: str, server: str) -> tuple[bool, str]:
         detail += " (WARNING: endpoint may be a stub)"
     return ok, detail
 
-
 def check_a4_env_var(app_content: str) -> tuple[bool, str]:
     """A4: MCP_API_VERSION read from environment."""
     ok = "MCP_API_VERSION" in app_content
     return ok, f"MCP_API_VERSION: {ok}"
-
 
 def check_a5_uvicorn(app_content: str) -> tuple[bool, str]:
     """A5: FastAPI/uvicorn application."""
     has_fastapi = "FastAPI" in app_content or "fastapi" in app_content
     ok = has_fastapi
     return ok, f"FastAPI: {has_fastapi}"
-
 
 # =============================================================================
 # Main evaluation
@@ -351,7 +325,6 @@ def run_evaluation(server: str, tf_dir: str, docker_dir: str, ci_yaml: str, bran
         "correctness_score": correctness_score,
     }
 
-
 def main():
     parser = argparse.ArgumentParser(description="Evaluate generated artefact correctness")
     parser.add_argument("--server", choices=["jira", "github"], required=True)
@@ -373,7 +346,6 @@ def main():
 
     if args.json:
         print(json.dumps(result, indent=2))
-
 
 if __name__ == "__main__":
     main()

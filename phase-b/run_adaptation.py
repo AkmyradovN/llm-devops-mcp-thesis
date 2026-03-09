@@ -1,23 +1,10 @@
 #!/usr/bin/env python3
-"""
-run_adaptation.py — Phase B Adaptation Experiments
-=============================================================================
-Tests how well the manual and LLM approaches handle an API version change
-(v1 → v2). Records prompts_to_fix, edit_span_lines, time_to_adapt_secs,
-and adaptation_success.
-
-Usage:
-    # Single run
-    python run_adaptation.py --server jira --approach llm
-    python run_adaptation.py --server jira --approach manual
-
-    # All Phase B combinations
-    python run_adaptation.py --all
-
-    # All with 10 repeats
-    python run_adaptation.py --all --repeat 10
-=============================================================================
-"""
+# Phase B experiment runner: tests manual vs LLM adaptation from API v1 to v2.
+# Measures prompts_to_fix, edit_span_lines, time_to_adapt_secs, and adaptation_success.
+#
+# Usage:
+#   python run_adaptation.py --server jira --approach llm
+#   python run_adaptation.py --all --repeat 10
 
 import argparse
 import csv
@@ -35,7 +22,7 @@ try:
 except ImportError:
     OpenAI = None
 
-# ── Paths ──
+# Paths
 RESULTS_CSV = Path("evaluation/results.csv")
 MANUAL_V1_DIR = Path("manual-baseline/docker")
 MANUAL_V2_DIR = Path("phase-b/manual-v2")
@@ -47,13 +34,13 @@ LOGS_DIR = Path("logs")
 JIRA_PORT = 80
 GITHUB_PORT = 81
 
-# ── LLM settings ──
+# LLM settings
 MODEL = "gpt-3.5-turbo"
 TEMPERATURE = 0.2
 MAX_TOKENS = 4096
 MAX_LLM_ROUNDS = 5
 
-# ── Cost & time parameters ──
+# Cost and time parameters
 MANUAL_ADAPT_SECS = 600   # 10 minutes to manually adapt v1→v2
 HUMAN_HOURLY_EUR = 30.0
 EC2_COMBINED_HOURLY_EUR = 0.018
@@ -70,7 +57,6 @@ CSV_HEADERS = [
     "tokens_total", "llm_cost_eur", "total_cost_eur", "notes",
 ]
 
-
 def get_run_count(server, approach, phase):
     if not RESULTS_CSV.exists():
         return 0
@@ -81,20 +67,17 @@ def get_run_count(server, approach, phase):
                 count += 1
     return count
 
-
 def ensure_csv():
     RESULTS_CSV.parent.mkdir(parents=True, exist_ok=True)
     if not RESULTS_CSV.exists() or RESULTS_CSV.stat().st_size == 0:
         with open(RESULTS_CSV, "w", newline="") as f:
             csv.writer(f).writerow(CSV_HEADERS)
 
-
 def append_row(row):
     ensure_csv()
     with open(RESULTS_CSV, "a", newline="") as f:
         csv.DictWriter(f, fieldnames=CSV_HEADERS).writerow(row)
     print(f"  ✓ Row written to {RESULTS_CSV}")
-
 
 def run_cmd(cmd, desc, capture=True):
     print(f"  → {desc}")
@@ -105,7 +88,6 @@ def run_cmd(cmd, desc, capture=True):
         for line in output.strip().split("\n")[:10]:  # increased from 3 to 10 for better debugging
             print(f"    {line}")
     return r.returncode, output
-
 
 def compute_diff_lines(v1_dir: Path, v2_dir: Path) -> int:
     """Count changed lines between v1 and v2 app.py files."""
@@ -120,10 +102,7 @@ def compute_diff_lines(v1_dir: Path, v2_dir: Path) -> int:
     # Subtract the --- and +++ header lines
     return max(0, changed - 2)
 
-
-# ═══════════════════════════════════════════════════════════════
 # LLM adaptation
-# ═══════════════════════════════════════════════════════════════
 
 def llm_adapt(server: str, run_id: str) -> dict:
     """Prompt the LLM to adapt v1 code to v2. Returns generation metadata."""
@@ -202,7 +181,7 @@ def llm_adapt(server: str, run_id: str) -> dict:
             print(f"    Round {attempt} failed: {last_error}")
             continue
 
-        # ── Sanitize LLM-generated Dockerfile before saving ──
+        # Fix common LLM Dockerfile mistakes before saving
         import re as _re
         dockerfile = parsed["dockerfile"]
         # Fix: CMD ['uvicorn', ...] → CMD ["uvicorn", ...] single→double quotes in exec-form
@@ -249,10 +228,7 @@ def llm_adapt(server: str, run_id: str) -> dict:
         "generated_dir": None,
     }
 
-
-# ═══════════════════════════════════════════════════════════════
 # Deploy + Verify (Phase B specific)
-# ═══════════════════════════════════════════════════════════════
 
 def deploy_v2(ec2_ip: str, pem_path: str, jira_src: Path, github_src: Path) -> dict:
     """Deploy v2 containers to EC2."""
@@ -303,9 +279,7 @@ def deploy_v2(ec2_ip: str, pem_path: str, jira_src: Path, github_src: Path) -> d
                 f"Checking mcp-{svc} exit status..."
             )
 
-
     return {"t_pipeline_secs": round(time.perf_counter() - start, 1)}
-
 
 def verify_v2(ec2_ip: str) -> dict:
     """Verify Phase B: v2 health check + v2 functional endpoints."""
@@ -377,10 +351,7 @@ def verify_v2(ec2_ip: str) -> dict:
 
     return results
 
-
-# ═══════════════════════════════════════════════════════════════
 # Main experiment
-# ═══════════════════════════════════════════════════════════════
 
 def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path: str):
     """Run one Phase B adaptation experiment."""
@@ -405,7 +376,7 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
     adapt_start = time.perf_counter()
 
     if approach == "manual":
-        # ── Manual adaptation: use pre-written v2 files ──
+        # Manual: copy the pre-written v2 files directly
         row["t_author_secs"] = MANUAL_ADAPT_SECS
         row["t_gen_secs"] = 0
         row["prompts_to_fix"] = ""
@@ -421,7 +392,7 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
         row["edit_span_lines"] = compute_diff_lines(MANUAL_V1_DIR / server, MANUAL_V2_DIR / server)
 
     else:
-        # ── LLM adaptation ──
+        # LLM adaptation
         row["t_author_secs"] = 0
 
         print(f"\n{'─'*60}")
@@ -468,7 +439,7 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
         # Compute diff vs v1
         row["edit_span_lines"] = compute_diff_lines(MANUAL_V1_DIR / server, gen["generated_dir"])
 
-    # ── Deploy v2 ──
+    # Deploy v2
     print(f"\n{'─'*60}")
     print(f"  STEP 2: Deploy v2")
     print(f"{'─'*60}")
@@ -477,7 +448,7 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
     row["t_pipeline_secs"] = deploy_result["t_pipeline_secs"]
     row["attempts"] = 1
 
-    # ── Verify v2 ──
+    # Verify v2
     print(f"\n{'─'*60}")
     print(f"  STEP 3: Verify v2 Deployment")
     print(f"{'─'*60}")
@@ -486,7 +457,7 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
     row["health_endpoint_pass"] = 1 if verify["health_pass"] else 0
     row["functional_endpoint_pass"] = 1 if verify["functional_pass"] else 0
 
-    # ── Compute results ──
+    # Compute and record results
     adapt_duration = time.perf_counter() - adapt_start
     row["time_to_adapt_secs"] = round(adapt_duration, 1)
     row["success"] = 1 if (verify["health_pass"] and verify["functional_pass"]) else 0
@@ -527,7 +498,6 @@ def run_adaptation_experiment(server: str, approach: str, ec2_ip: str, pem_path:
 
     return row
 
-
 def main():
     parser = argparse.ArgumentParser(description="Phase B adaptation experiments")
     parser.add_argument("--server", choices=["jira", "github"])
@@ -557,7 +527,6 @@ def main():
             sys.exit(1)
         for _ in range(args.repeat):
             run_adaptation_experiment(args.server, args.approach, ec2_ip, pem_path)
-
 
 if __name__ == "__main__":
     main()
