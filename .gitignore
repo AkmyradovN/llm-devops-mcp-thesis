@@ -1,0 +1,26 @@
+venv/
+__pycache__/
+*.py[cod]
+.env
+
+# SSH keys / secrets
+*.pem
+*.key
+
+# Terraform state and local files
+manual-baseline/terraform/.terraform/
+manual-baseline/terraform/*.tfstate
+manual-baseline/terraform/*.tfstate.backup
+manual-baseline/terraform/.terraform.lock.hcl
+manual-baseline/terraform/terraform.tfvars
+manual-baseline/terraform/personalTestEC2.pem
+
+# LLM generated output (too large / runtime artifacts)
+llm-assisted/generated/
+logs/
+
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
