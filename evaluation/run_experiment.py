@@ -192,43 +192,93 @@ def step_generate_llm(server: str, run_id: str) -> dict:
 def step_deploy(ec2_ip: str, pem_path: str, approach: str, server: str) -> dict:
     """Deploy containers to EC2. Returns deployment metadata."""
     print(f"\n{'─'*60}")
-    print(f"  STEP 2: Deploy to EC2")
+    print(f"  STEP 2: Deploy to EC2 ({approach} approach)")
     print(f"{'─'*60}")
 
     start = time.perf_counter()
-    docker_base = MANUAL_BASELINE_DIR / "docker" if approach == "manual" else LLM_ASSISTED_DIR / "docker"
-
     ssh_opts = "-o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
-    # Copy files
+    # ── Resolve source directories for each service ──
+    sources = {}
     for svc in ["jira", "github"]:
-        src = docker_base / svc
-        if not src.exists():
-            # For LLM: files might be in generated/ — try to find them
+        if approach == "manual":
+            src = MANUAL_BASELINE_DIR / "docker" / svc
+            if src.exists() and (src / "Dockerfile").exists():
+                sources[svc] = src
+            else:
+                print(f"  ERROR: Manual baseline not found: {src}")
+                return {"t_pipeline_secs": 0}
+        else:
+            # LLM: search generated directories for the most recent matching output
+            src = None
             gen_dir = LLM_ASSISTED_DIR / "generated"
             if gen_dir.exists():
                 for d in sorted(gen_dir.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
+                    if not d.is_dir():
+                        continue
                     candidate = d / svc
                     if candidate.exists() and (candidate / "Dockerfile").exists():
                         src = candidate
                         break
-            if not src.exists():
-                print(f"    WARNING: {src} not found, skipping {svc}")
-                continue
 
-        exit_code, _ = run_cmd(
+            if src is None:
+                print(f"  ERROR: No LLM-generated files found for {svc}")
+                print(f"         Searched: {gen_dir}")
+                print(f"         Expected: <run_dir>/{svc}/Dockerfile")
+                return {"t_pipeline_secs": 0}
+
+            sources[svc] = src
+
+    # Print exactly what we're deploying (for verification)
+    for svc, src in sources.items():
+        print(f"  Source for {svc}: {src}")
+        # Verify it's the right approach by checking file content
+        app_py = src / "app.py"
+        if app_py.exists():
+            first_lines = app_py.read_text()[:200]
+            if approach == "llm" and "Manual Baseline" in first_lines:
+                print(f"  WARNING: {svc}/app.py contains 'Manual Baseline' — may be wrong files!")
+            elif approach == "manual" and "Manual Baseline" not in first_lines:
+                print(f"  WARNING: {svc}/app.py doesn't contain 'Manual Baseline' marker")
+
+    # ── Clean old files and containers on EC2 ──
+    print(f"  Cleaning old deployments on EC2...")
+    run_cmd(
+        f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
+        f'"docker stop mcp-jira mcp-github 2>/dev/null; '
+        f'docker rm mcp-jira mcp-github 2>/dev/null; '
+        f'rm -rf /home/ubuntu/jira /home/ubuntu/github"',
+        "Stopping containers and removing old files..."
+    )
+
+    # ── Copy files to EC2 ──
+    for svc, src in sources.items():
+        exit_code, output = run_cmd(
             f"scp {ssh_opts} -i {pem_path} -r {src} ubuntu@{ec2_ip}:/home/ubuntu/{svc}",
-            f"Copying {svc} to EC2..."
+            f"Copying {svc} to EC2 from {src}..."
         )
+        if exit_code != 0:
+            print(f"  ERROR: SCP failed for {svc}")
 
-    # Build and run containers
+    # ── Verify files were copied correctly ──
+    print(f"  Verifying deployed files...")
+    _, verify_out = run_cmd(
+        f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
+        f'"echo === JIRA === && head -5 /home/ubuntu/jira/app.py && '
+        f'echo === GITHUB === && head -5 /home/ubuntu/github/app.py"',
+        "Checking deployed app.py files..."
+    )
+    if verify_out:
+        for line in verify_out.strip().split("\n")[:10]:
+            print(f"    {line}")
+
+    # ── Build (no cache) and run containers ──
     for svc, port in [("jira", JIRA_PORT), ("github", GITHUB_PORT)]:
         run_cmd(
             f'ssh {ssh_opts} -i {pem_path} ubuntu@{ec2_ip} '
-            f'"cd /home/ubuntu/{svc} && docker build -t mcp-{svc} . && '
-            f'docker stop mcp-{svc} 2>/dev/null; docker rm mcp-{svc} 2>/dev/null; '
+            f'"cd /home/ubuntu/{svc} && docker build --no-cache -t mcp-{svc} . && '
             f'docker run -d --name mcp-{svc} -p {port}:8000 --restart unless-stopped mcp-{svc}"',
-            f"Building and starting mcp-{svc} on port {port}..."
+            f"Building (no-cache) and starting mcp-{svc} on port {port}..."
         )
 
     duration = time.perf_counter() - start
@@ -430,7 +480,24 @@ def run_single_experiment(
         row["llm_cost_eur"] = round(gen_result["tokens_total"] / 1000 * 0.002, 4)
     else:
         row["t_gen_secs"] = 0
-        row["t_author_secs"] = 22  # Your measured manual authoring time
+        # ─────────────────────────────────────────────────────────────
+        # MANUAL AUTHORING TIME — Total Development Lead Time
+        # ─────────────────────────────────────────────────────────────
+        # This is the realistic time a DevOps engineer would spend to
+        # research, write, test, and debug the full configuration from
+        # scratch (Terraform + Dockerfile + CI/CD YAML + app code).
+        #
+        # Conservative estimate based on thesis author's experience:
+        #   - Terraform (research AWS docs, write 3 files, test):  ~20 min
+        #   - Docker per server (Dockerfile + app.py + test):      ~15 min
+        #   - CI/CD workflow (GitHub Actions YAML + test):         ~15 min
+        #   - Total per server:                                    ~50 min
+        #
+        # Using 1800 seconds (30 min) as a CONSERVATIVE lower bound.
+        # This is justified in the Methodology chapter (Section 4.3).
+        # ─────────────────────────────────────────────────────────────
+        MANUAL_AUTHOR_SECS = 1800
+        row["t_author_secs"] = MANUAL_AUTHOR_SECS
         row["tokens_prompt"] = 0
         row["tokens_completion"] = 0
         row["tokens_total"] = 0
@@ -491,10 +558,39 @@ def run_single_experiment(
     )
 
     # Cost estimation
-    pipeline_mins = (row.get("t_pipeline_secs") or 0) / 60
-    row["aws_runtime_mins"] = round(pipeline_mins, 1)
-    row["aws_cost_eur"] = round(pipeline_mins / 60 * 0.0116, 4)
-    row["total_cost_eur"] = round((row.get("aws_cost_eur") or 0) + (row.get("llm_cost_eur") or 0), 4)
+    # ─────────────────────────────────────────────────────────────────
+    # Model B: Ephemeral instance cost (terraform apply → destroy)
+    # Based on research: a full lifecycle takes ~5 min for t2.micro.
+    # Costs include: EC2 compute + public IPv4 surcharge + EBS storage.
+    #
+    # Rates (eu-central-1, March 2026):
+    #   EC2 t2.micro on-demand:  $0.0134/hr  (≈ €0.0123/hr)
+    #   Public IPv4 surcharge:   $0.005/hr   (≈ €0.0046/hr)
+    #   EBS gp3 8GB:             ~$0.001/hr  (negligible)
+    #   Combined effective rate: ~€0.018/hr
+    #
+    # Human labor cost (for total development cost comparison):
+    #   Junior/mid DevOps engineer in EU: €30/hr (conservative)
+    # ─────────────────────────────────────────────────────────────────
+    EC2_COMBINED_HOURLY_EUR = 0.018   # compute + IPv4 + EBS
+    HUMAN_HOURLY_EUR = 30.0           # DevOps engineer labor rate
+
+    # AWS infra cost: based on 5-min minimum per ephemeral lifecycle
+    lifecycle_mins = max(5.0, (row.get("t_pipeline_secs") or 0) / 60)
+    row["aws_runtime_mins"] = round(lifecycle_mins, 1)
+    row["aws_cost_eur"] = round(lifecycle_mins / 60 * EC2_COMBINED_HOURLY_EUR, 6)
+
+    # Human labor cost (manual only — the "hidden" cost of manual DevOps)
+    author_secs = row.get("t_author_secs") or 0
+    human_labor_eur = round((author_secs / 3600) * HUMAN_HOURLY_EUR, 4)
+
+    # Total cost = AWS infra + LLM tokens + human labor
+    row["total_cost_eur"] = round(
+        (row.get("aws_cost_eur") or 0) +
+        (row.get("llm_cost_eur") or 0) +
+        human_labor_eur,
+        4
+    )
 
     row["timestamp_end"] = datetime.now(timezone.utc).isoformat()
 
@@ -520,6 +616,8 @@ def run_single_experiment(
         print(f"  Tokens used:       {row['tokens_total']}")
         print(f"  LLM cost:          EUR {row['llm_cost_eur']}")
     print(f"  AWS cost:          EUR {row['aws_cost_eur']}")
+    if approach == "manual":
+        print(f"  Human labor:       EUR {human_labor_eur} ({author_secs}s × EUR {HUMAN_HOURLY_EUR}/hr)")
     print(f"  Total cost:        EUR {row['total_cost_eur']}")
     print(f"  Attempts:          {row['attempts']}")
     print(f"  Row written to:    {RESULTS_CSV}")

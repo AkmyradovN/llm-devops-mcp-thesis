@@ -1,0 +1,35 @@
+You are a senior DevOps engineer. An MCP server needs to be updated from API version v1 to v2.
+
+EXISTING v1 CODE (app.py):
+```python
+{existing_app_py}
+```
+
+EXISTING v1 DOCKERFILE:
+```dockerfile
+{existing_dockerfile}
+```
+
+REQUIRED CHANGES FOR v2:
+1. All functional endpoint paths must be prefixed with /v2/
+   - {endpoint_changes}
+2. The /health endpoint must add a new field: "api_status": "stable"
+3. The /health endpoint must include "environment" field from MCP_SERVER_ENV env var
+4. A new required environment variable MCP_SERVER_ENV must be read (default: "staging")
+5. All functional endpoint responses must include "environment": <MCP_SERVER_ENV value>
+6. MCP_API_VERSION must now be required (no default — use os.environ["MCP_API_VERSION"])
+7. The /manifest endpoint must list the new /v2/ paths and include "api_version": "v2"
+8. The Dockerfile must set ENV MCP_API_VERSION=v2 and ENV MCP_SERVER_ENV=production
+
+IMPORTANT:
+- All endpoint functions must have COMPLETE implementations that return proper JSON
+- Do NOT leave any stub comments like "# Implement endpoint" — write the full code
+- Every functional endpoint must return {{"status": "success", ...}}
+- The /health endpoint must return {{"status": "ok", "service": "{service_name}", ...}}
+
+Return your response as a single JSON object with exactly these keys:
+- "app_py": the complete updated app.py contents as a string
+- "dockerfile": the complete updated Dockerfile contents as a string
+- "requirements_txt": the complete requirements.txt contents as a string
+
+Do NOT include any explanation or markdown formatting. Return ONLY valid JSON.

@@ -1,9 +1,29 @@
 venv/
 __pycache__/
+*.py[cod]
 .env
-manual-baseline/terraform/personalTestEC2.pem
-manual-baseline/terraform/terraform.tfvars
-manual-baseline/terraform/.terraform
+
+# SSH keys / secrets
+*.pem
+*.key
+
+# Terraform state and local files
+manual-baseline/terraform/.terraform/
 manual-baseline/terraform/*.tfstate
 manual-baseline/terraform/*.tfstate.backup
 manual-baseline/terraform/.terraform.lock.hcl
+manual-baseline/terraform/terraform.tfvars
+manual-baseline/terraform/personalTestEC2.pem
+
+# LLM generated output (too large / runtime artifacts)
+llm-assisted/generated/
+logs/
+
+# Evaluation junk/backups
+evaluation/results_invalid_backup.csv
+evaluation/results_old_invalid.csv
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
