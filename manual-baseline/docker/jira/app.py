@@ -1,4 +1,3 @@
-# =============================================================================
 # app.py — MCP-Jira Server (Manual Baseline)
 # =============================================================================
 # A lightweight FastAPI application simulating an MCP server that connects
