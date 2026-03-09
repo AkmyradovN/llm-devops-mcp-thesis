@@ -1,10 +1,7 @@
-# =============================================================================
-# Dockerfile — MCP-GitHub Server (Manual Baseline)
-# =============================================================================
+# MCP-GitHub Server (Manual Baseline)
 # Builds a minimal container running the MCP-GitHub FastAPI application.
 # Includes a HEALTHCHECK directive so Docker can report container health
 # and the CI/CD pipeline can verify deployment success.
-# =============================================================================
 
 FROM python:3.10-slim
 

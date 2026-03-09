@@ -1,9 +1,6 @@
-# =============================================================================
-# outputs.tf — Values needed by the CI/CD pipeline and verification scripts
-# =============================================================================
+# Outputs needed by the CI/CD pipeline and verification scripts
 # After terraform apply, these values are printed to the console and can be
 # queried with: terraform output public_ip
-# =============================================================================
 
 output "public_ip" {
   description = "Public IPv4 address of the MCP host (used for health checks)"

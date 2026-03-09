@@ -1,12 +1,9 @@
-# =============================================================================
 # Manual Baseline Infrastructure for MCP Server Deployment
-# =============================================================================
 # This configuration provisions a single EC2 instance on AWS with Docker
 # pre-installed, ready to host two MCP servers (Jira on port 80, GitHub
 # Issues on port 81). Part of the manual baseline for the MSc thesis:
 # "LLM-Assisted DevOps for Automated Deployment and Management of MCP
 #  Servers on Cloud Platforms"
-# =============================================================================
 
 terraform {
   required_version = ">= 1.5.0"

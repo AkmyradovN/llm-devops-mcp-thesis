@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# =============================================================================
-# deploy_to_ec2.sh — Deploy both MCP servers to EC2 (Manual Baseline)
-# =============================================================================
+# Deploy both MCP servers to EC2 (Manual Baseline)
 # Usage:
 #   bash deploy_to_ec2.sh <EC2_PUBLIC_IP> <PATH_TO_PEM>
 #
@@ -15,7 +13,6 @@
 #   4. Starts fresh containers (Jira on port 80, GitHub on port 81)
 #   5. Waits for health checks to pass
 #   6. Reports deployment time
-# =============================================================================
 
 set -euo pipefail
 

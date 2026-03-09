@@ -1,0 +1,198 @@
+# CI/CD Pipeline for Manual Baseline MCP Server Deployment
+# Triggered on push to the manual-baseline branch. Deploys both MCP servers
+# (Jira on port 80, GitHub on port 81) to the EC2 instance via SSH, then
+# runs health checks to verify deployment success.
+#
+# Required GitHub Secrets:
+#   EC2_HOST     — Public IP or DNS of the EC2 instance
+#   EC2_USER     — SSH username (ubuntu)
+#   EC2_SSH_KEY  — Contents of the .pem private key file
+
+name: Deploy MCP Servers (Manual Baseline)
+
+on:
+  push:
+    branches:
+      - manual-baseline
+    paths:
+      - "manual-baseline/docker/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:    # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout repository
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Step 2: Set up SSH key for EC2 access
+      # -----------------------------------------------------------------------
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      # -----------------------------------------------------------------------
+      # Step 3: Record deployment start time
+      # -----------------------------------------------------------------------
+      - name: Record start time
+        id: timer_start
+        run: |
+          echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
+          echo "start_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "Deployment started at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      # -----------------------------------------------------------------------
+      # Step 4: Copy Docker files to EC2
+      # Uploads both MCP server directories to the instance.
+      # -----------------------------------------------------------------------
+      - name: Copy MCP-Jira files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key.pem \
+            -r manual-baseline/docker/jira \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/jira
+
+      - name: Copy MCP-GitHub files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key.pem \
+            -r manual-baseline/docker/github \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/github
+
+      # -----------------------------------------------------------------------
+      # Step 5: Build and deploy MCP-Jira container
+      # Stops old container (if any), builds fresh image, starts new container.
+      # -----------------------------------------------------------------------
+      - name: Deploy MCP-Jira container
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
+          echo "--- Building MCP-Jira ---"
+          cd /home/ubuntu/jira
+          docker build -t mcp-jira .
+          docker stop mcp-jira 2>/dev/null || true
+          docker rm mcp-jira 2>/dev/null || true
+          docker run -d --name mcp-jira -p 80:8000 --restart unless-stopped mcp-jira
+          echo "--- MCP-Jira deployed ---"
+          EOF
+
+      # -----------------------------------------------------------------------
+      # Step 6: Build and deploy MCP-GitHub container
+      # -----------------------------------------------------------------------
+      - name: Deploy MCP-GitHub container
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
+          echo "--- Building MCP-GitHub ---"
+          cd /home/ubuntu/github
+          docker build -t mcp-github .
+          docker stop mcp-github 2>/dev/null || true
+          docker rm mcp-github 2>/dev/null || true
+          docker run -d --name mcp-github -p 81:8000 --restart unless-stopped mcp-github
+          echo "--- MCP-GitHub deployed ---"
+          EOF
+
+      # -----------------------------------------------------------------------
+      # Step 7: Health check — MCP-Jira
+      # Retries up to 12 times (60 seconds total) waiting for HTTP 200.
+      # This step FAILS the pipeline if the server doesn't come up.
+      # -----------------------------------------------------------------------
+      - name: Health check — MCP-Jira (port 80)
+        run: |
+          echo "Waiting for MCP-Jira health endpoint..."
+          for i in $(seq 1 12); do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" \
+              "http://${{ secrets.EC2_HOST }}:80/health" 2>/dev/null || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✓ MCP-Jira is healthy"
+              curl -sf "http://${{ secrets.EC2_HOST }}:80/health"
+              echo ""
+              exit 0
+            fi
+            echo "  Attempt $i/12 — HTTP $HTTP_CODE, retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ MCP-Jira FAILED health check after 60 seconds"
+          exit 1
+
+      # -----------------------------------------------------------------------
+      # Step 8: Health check — MCP-GitHub
+      # -----------------------------------------------------------------------
+      - name: Health check — MCP-GitHub (port 81)
+        run: |
+          echo "Waiting for MCP-GitHub health endpoint..."
+          for i in $(seq 1 12); do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" \
+              "http://${{ secrets.EC2_HOST }}:81/health" 2>/dev/null || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✓ MCP-GitHub is healthy"
+              curl -sf "http://${{ secrets.EC2_HOST }}:81/health"
+              echo ""
+              exit 0
+            fi
+            echo "  Attempt $i/12 — HTTP $HTTP_CODE, retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ MCP-GitHub FAILED health check after 60 seconds"
+          exit 1
+
+      # -----------------------------------------------------------------------
+      # Step 9: Functional endpoint verification
+      # Quick smoke test of actual MCP endpoints beyond /health.
+      # -----------------------------------------------------------------------
+      - name: Functional test — MCP-Jira /create_ticket
+        run: |
+          RESPONSE=$(curl -sf "http://${{ secrets.EC2_HOST }}:80/create_ticket?project=TEST&summary=CI-test&priority=Medium")
+          echo "MCP-Jira /create_ticket response: $RESPONSE"
+          echo "$RESPONSE" | grep -q '"status":"success"' || \
+            { echo "✗ Functional test failed"; exit 1; }
+          echo "✓ MCP-Jira functional test passed"
+
+      - name: Functional test — MCP-GitHub /create_issue
+        run: |
+          RESPONSE=$(curl -sf "http://${{ secrets.EC2_HOST }}:81/create_issue?owner=test&repo=test-repo&title=CI-test")
+          echo "MCP-GitHub /create_issue response: $RESPONSE"
+          echo "$RESPONSE" | grep -q '"status":"success"' || \
+            { echo "✗ Functional test failed"; exit 1; }
+          echo "✓ MCP-GitHub functional test passed"
+
+      # -----------------------------------------------------------------------
+      # Step 10: Record deployment end time and summary
+      # Prints timing data for results.csv collection.
+      # -----------------------------------------------------------------------
+      - name: Deployment summary
+        if: always()
+        run: |
+          END=$(date +%s)
+          START=${{ steps.timer_start.outputs.start }}
+          DURATION=$((END - START))
+
+          echo "═══════════════════════════════════════════════════"
+          echo "  DEPLOYMENT SUMMARY"
+          echo "═══════════════════════════════════════════════════"
+          echo "  Pipeline:     Manual Baseline"
+          echo "  Started:      ${{ steps.timer_start.outputs.start_iso }}"
+          echo "  Finished:     $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "  Duration:     ${DURATION} seconds"
+          echo "  EC2 Host:     ${{ secrets.EC2_HOST }}"
+          echo "  MCP-Jira:     http://${{ secrets.EC2_HOST }}:80/health"
+          echo "  MCP-GitHub:   http://${{ secrets.EC2_HOST }}:81/health"
+          echo "═══════════════════════════════════════════════════"
+          echo ""
+          echo ">> For results.csv: t_pipeline_secs = ${DURATION}"
+
+      # -----------------------------------------------------------------------
+      # Step 11: Clean up SSH key
+      # -----------------------------------------------------------------------
+      - name: Clean up
+        if: always()
+        run: rm -f private_key.pem
