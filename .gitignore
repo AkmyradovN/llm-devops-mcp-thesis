@@ -19,9 +19,6 @@ manual-baseline/terraform/personalTestEC2.pem
 llm-assisted/generated/
 logs/
 
-# Evaluation junk/backups
-evaluation/results_invalid_backup.csv
-evaluation/results_old_invalid.csv
 
 # OS / IDE
 .DS_Store
