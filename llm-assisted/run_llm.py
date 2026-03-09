@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_llm.py — LLM Artefact Generation for MCP Server Deployment
+LLM Artefact Generation for MCP Server Deployment
 
 Calls GPT-3.5 Turbo to generate DevOps artefacts (Terraform, Docker, CI/CD)
 using structured JSON output. Records timing, token usage, and saves results
@@ -21,10 +21,6 @@ Usage:
 
     # Retry with error context (self-correction)
     python run_llm.py --artefact terraform --server jira --error-context "Missing provider block"
-
-Part of the MSc thesis:
-"LLM-Assisted DevOps for Automated Deployment and Management of MCP
- Servers on Cloud Platforms"
 
 """
 

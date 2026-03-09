@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-plotting.py — Generate thesis-ready charts from experiment results
+ Generate ready charts from experiment results
 
 Produces boxplots, bar charts, and comparison plots using matplotlib only.
 
@@ -29,7 +29,7 @@ except ImportError:
 RESULTS_FILE = Path("evaluation/results.csv")
 OUTPUT_DIR = Path("evaluation/report")
 
-# Thesis-appropriate style
+# appropriate style
 COLORS = {"manual": "#2B579A", "llm": "#E87D2F"}
 LABELS = {"manual": "Manual Baseline", "llm": "LLM-Assisted"}
 

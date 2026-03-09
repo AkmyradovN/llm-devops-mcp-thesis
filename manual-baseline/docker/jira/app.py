@@ -1,13 +1,8 @@
-# app.py — MCP-Jira Server (Manual Baseline)
-# =============================================================================
+# MCP-Jira Server (Manual Baseline)
 # A lightweight FastAPI application simulating an MCP server that connects
 # AI assistants to Jira. Exposes a health endpoint for deployment verification
 # and functional endpoints that simulate Jira operations.
 #
-# Part of the manual baseline for the MSc thesis:
-# "LLM-Assisted DevOps for Automated Deployment and Management of MCP
-#  Servers on Cloud Platforms"
-# =============================================================================
 
 import os
 import time

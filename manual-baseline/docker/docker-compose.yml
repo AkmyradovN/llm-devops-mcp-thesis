@@ -1,10 +1,7 @@
-# =============================================================================
-# docker-compose.yml — Local testing of both MCP servers
-# =============================================================================
+# Local testing of both MCP servers
 # Run: docker-compose up --build
 # Jira:   http://localhost:8080/health
 # GitHub: http://localhost:8081/health
-# =============================================================================
 
 version: "3.9"
 
