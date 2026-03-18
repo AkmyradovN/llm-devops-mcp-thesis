@@ -1,0 +1,124 @@
+run_id,timestamp,model,model_display,server,artefact,duration_secs,tokens_total,cost_usd,parse_success,validation_errors_count,generation_success
+jira-terraform-gpt-3.5-turbo-20260318T174804,2026-03-18T17:48:12.590259+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,terraform,7.62,759,0.000817,1,0,1
+jira-terraform-gemini-2.5-flash-20260318T182146,2026-03-18T18:21:57.515321+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,terraform,10.92,1596,0.0,1,0,1
+jira-terraform-claude-sonnet-4-5-20260318T191646,2026-03-18T19:17:00.951022+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,terraform,14.253,1799,0.022485,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T192234,2026-03-18T19:22:41.934704+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,7.713,732,0.000771,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T192241,2026-03-18T19:22:49.822585+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,7.729,1480,0.001632,1,0,1
+github-docker-gpt-3.5-turbo-20260318T192249,2026-03-18T19:22:57.868636+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,7.893,1219,0.001213,1,0,1
+both-ci-gpt-3.5-turbo-20260318T192257,2026-03-18T19:23:06.101331+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,8.053,1410,0.001534,1,0,1
+both-terraform-gemini-2.5-flash-20260318T192306,2026-03-18T19:23:19.119775+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,12.726,1632,0.0,0,0,0
+jira-docker-gemini-2.5-flash-20260318T192319,2026-03-18T19:23:37.847342+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,18.445,1079,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T192337,2026-03-18T19:23:54.850443+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,16.693,837,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T192354,2026-03-18T19:24:10.468438+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,15.357,2067,0.0,1,0,1
+both-terraform-claude-sonnet-4-5-20260318T192410,2026-03-18T19:24:26.836197+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,16.217,1981,0.025155,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T192426,2026-03-18T19:24:48.813113+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.9,2853,0.034983,1,0,1
+github-docker-claude-sonnet-4-5-20260318T192448,2026-03-18T19:25:13.230745+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,24.263,3096,0.038388,1,0,1
+both-ci-claude-sonnet-4-5-20260318T192513,2026-03-18T19:25:27.528364+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.187,2065,0.022887,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T192527,2026-03-18T19:25:34.527998+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,6.797,759,0.000812,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T192534,2026-03-18T19:25:52.298856+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,17.701,1467,0.001613,1,0,1
+github-docker-gpt-3.5-turbo-20260318T192552,2026-03-18T19:25:59.673640+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,7.248,1148,0.001106,1,0,1
+both-ci-gpt-3.5-turbo-20260318T192559,2026-03-18T19:26:08.472264+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,8.612,1450,0.001594,1,0,1
+both-terraform-gemini-2.5-flash-20260318T192608,2026-03-18T19:26:27.418550+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,18.862,940,0.0,0,0,0
+jira-docker-gemini-2.5-flash-20260318T192627,2026-03-18T19:26:43.595838+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,15.867,815,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T192643,2026-03-18T19:26:59.576724+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,15.836,1664,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T192659,2026-03-18T19:27:14.084139+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,14.195,2063,0.0,1,0,1
+both-terraform-claude-sonnet-4-5-20260318T192714,2026-03-18T19:27:29.908498+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,15.712,1978,0.02511,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T192729,2026-03-18T19:27:51.803876+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.701,2822,0.034518,1,0,1
+github-docker-claude-sonnet-4-5-20260318T192751,2026-03-18T19:28:15.655027+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,23.668,3091,0.038313,1,0,1
+both-ci-claude-sonnet-4-5-20260318T192815,2026-03-18T19:28:29.895422+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.198,2079,0.023097,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T192829,2026-03-18T19:28:36.137527+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,6.064,764,0.000819,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T192836,2026-03-18T19:28:43.552442+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,7.182,1055,0.000995,1,0,1
+github-docker-gpt-3.5-turbo-20260318T192843,2026-03-18T19:28:54.158446+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,10.411,1146,0.001103,1,0,1
+both-ci-gpt-3.5-turbo-20260318T192854,2026-03-18T19:28:58.951476+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,4.615,1249,0.001293,1,0,1
+both-terraform-gemini-2.5-flash-20260318T192858,2026-03-18T19:29:11.982361+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,12.924,1467,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T192911,2026-03-18T19:29:29.797240+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,17.57,812,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T192929,2026-03-18T19:29:47.613387+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,17.701,839,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T192947,2026-03-18T19:30:04.383920+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,16.49,1812,0.0,0,0,0
+both-terraform-claude-sonnet-4-5-20260318T193004,2026-03-18T19:30:21.612747+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,17.002,1981,0.025155,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T193021,2026-03-18T19:30:43.151597+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.478,2820,0.034488,1,0,1
+github-docker-claude-sonnet-4-5-20260318T193043,2026-03-18T19:31:07.491984+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,24.261,3062,0.037878,1,0,1
+both-ci-claude-sonnet-4-5-20260318T193107,2026-03-18T19:31:22.235986+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.498,2065,0.022887,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T193122,2026-03-18T19:31:25.812806+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,3.505,746,0.000792,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T193125,2026-03-18T19:31:31.447019+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,5.601,1065,0.001009,1,0,1
+github-docker-gpt-3.5-turbo-20260318T193131,2026-03-18T19:31:39.284139+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,7.744,1133,0.001084,1,0,1
+both-ci-gpt-3.5-turbo-20260318T193139,2026-03-18T19:31:50.390993+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,10.952,1398,0.001516,1,0,1
+both-terraform-gemini-2.5-flash-20260318T193150,2026-03-18T19:32:06.614241+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,16.105,1643,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T193206,2026-03-18T19:32:22.859181+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,16.024,1016,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T193222,2026-03-18T19:32:42.117543+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,18.972,838,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T193242,2026-03-18T19:32:55.157436+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,12.759,2013,0.0,1,0,1
+both-terraform-claude-sonnet-4-5-20260318T193255,2026-03-18T19:33:10.139934+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,14.856,1832,0.02292,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T193310,2026-03-18T19:33:35.747800+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,25.51,2873,0.035283,1,0,1
+github-docker-claude-sonnet-4-5-20260318T193335,2026-03-18T19:33:57.799586+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,21.841,2927,0.035853,1,0,1
+both-ci-claude-sonnet-4-5-20260318T193357,2026-03-18T19:34:11.812416+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,13.917,2073,0.023007,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T193411,2026-03-18T19:34:18.054391+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,6.14,753,0.000803,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T193418,2026-03-18T19:34:21.643371+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,3.53,1096,0.001056,1,0,1
+github-docker-gpt-3.5-turbo-20260318T193421,2026-03-18T19:34:29.520695+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,7.78,1156,0.001118,1,0,1
+both-ci-gpt-3.5-turbo-20260318T193429,2026-03-18T19:34:35.440300+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,5.749,1279,0.001337,1,0,1
+both-terraform-gemini-2.5-flash-20260318T193435,2026-03-18T19:34:51.031612+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,15.233,1640,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T193451,2026-03-18T19:35:07.771313+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,16.588,814,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T193507,2026-03-18T19:35:23.925149+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,16.006,840,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T193523,2026-03-18T19:35:40.495201+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,16.351,1073,0.0,0,0,0
+both-terraform-claude-sonnet-4-5-20260318T193540,2026-03-18T19:35:56.567244+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,16.01,1980,0.02514,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T193556,2026-03-18T19:36:18.970125+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,22.232,2791,0.034053,1,0,1
+github-docker-claude-sonnet-4-5-20260318T193618,2026-03-18T19:36:43.325474+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,24.175,3091,0.038313,1,0,1
+both-ci-claude-sonnet-4-5-20260318T193643,2026-03-18T19:36:58.508108+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,15.13,2077,0.023067,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T193658,2026-03-18T19:37:03.249109+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,4.687,746,0.000792,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T193703,2026-03-18T19:37:10.088510+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,6.678,1038,0.000969,1,0,1
+github-docker-gpt-3.5-turbo-20260318T193710,2026-03-18T19:37:17.896306+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,7.597,1149,0.001107,1,0,1
+both-ci-gpt-3.5-turbo-20260318T193717,2026-03-18T19:37:32.143736+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,14.171,1426,0.001558,1,0,1
+both-terraform-gemini-2.5-flash-20260318T193732,2026-03-18T19:37:50.639458+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,18.202,1739,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T193750,2026-03-18T19:38:07.454361+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,16.533,813,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T193807,2026-03-18T19:38:26.372285+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,18.646,1711,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T193826,2026-03-18T19:38:38.927769+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,12.282,2034,0.0,1,0,1
+both-terraform-claude-sonnet-4-5-20260318T193838,2026-03-18T19:38:55.359366+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,16.383,1975,0.025065,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T193855,2026-03-18T19:39:17.477911+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.959,2804,0.034248,1,0,1
+github-docker-claude-sonnet-4-5-20260318T193917,2026-03-18T19:39:42.018635+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,24.382,3097,0.038403,1,0,1
+both-ci-claude-sonnet-4-5-20260318T193942,2026-03-18T19:39:57.105538+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.929,2089,0.023247,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T193957,2026-03-18T19:40:03.354625+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,6.092,764,0.000819,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T194003,2026-03-18T19:40:09.322225+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,5.814,1051,0.000989,1,0,1
+github-docker-gpt-3.5-turbo-20260318T194009,2026-03-18T19:40:16.042432+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,6.57,1146,0.001103,1,0,1
+both-ci-gpt-3.5-turbo-20260318T194016,2026-03-18T19:40:27.679121+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,11.471,1430,0.001564,1,0,1
+both-terraform-gemini-2.5-flash-20260318T194027,2026-03-18T19:40:44.420123+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,16.472,1642,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T194044,2026-03-18T19:41:02.485491+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,17.805,1063,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T194102,2026-03-18T19:41:21.894023+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,19.153,857,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T194121,2026-03-18T19:41:38.996566+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,17.019,1952,0.0,0,0,0
+both-terraform-claude-sonnet-4-5-20260318T194138,2026-03-18T19:41:55.891275+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,16.695,2000,0.02544,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T194155,2026-03-18T19:42:17.807702+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.75,2791,0.034053,1,0,1
+github-docker-claude-sonnet-4-5-20260318T194217,2026-03-18T19:42:40.869185+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,22.901,2928,0.035868,1,0,1
+both-ci-claude-sonnet-4-5-20260318T194240,2026-03-18T19:42:55.384837+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.351,2079,0.023097,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T194255,2026-03-18T19:43:02.468563+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,6.909,753,0.000803,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T194302,2026-03-18T19:43:11.257956+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,8.613,1068,0.001014,1,0,1
+github-docker-gpt-3.5-turbo-20260318T194311,2026-03-18T19:43:21.600635+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,10.194,1114,0.001055,1,0,1
+both-ci-gpt-3.5-turbo-20260318T194321,2026-03-18T19:43:36.652065+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,14.903,1425,0.001556,1,0,1
+both-terraform-gemini-2.5-flash-20260318T194336,2026-03-18T19:43:49.561996+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,12.625,1400,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T194349,2026-03-18T19:44:06.656644+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,16.817,815,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T194406,2026-03-18T19:44:24.109233+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,17.177,871,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T194424,2026-03-18T19:44:40.893640+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,16.512,817,0.0,0,0,0
+both-terraform-claude-sonnet-4-5-20260318T194440,2026-03-18T19:44:55.130204+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,14.065,1805,0.022515,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T194455,2026-03-18T19:45:18.075876+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,22.767,2840,0.034788,1,0,1
+github-docker-claude-sonnet-4-5-20260318T194518,2026-03-18T19:45:42.708612+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,24.477,3098,0.038418,1,0,1
+both-ci-claude-sonnet-4-5-20260318T194542,2026-03-18T19:45:56.944197+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,14.091,2083,0.023157,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T194556,2026-03-18T19:46:03.094635+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,5.916,756,0.000807,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T194603,2026-03-18T19:46:19.062086+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,15.808,1575,0.001775,1,0,1
+github-docker-gpt-3.5-turbo-20260318T194619,2026-03-18T19:46:26.043885+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,6.76,1149,0.001107,1,0,1
+both-ci-gpt-3.5-turbo-20260318T194626,2026-03-18T19:46:36.365854+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,10.149,1391,0.001506,1,0,1
+both-terraform-gemini-2.5-flash-20260318T194636,2026-03-18T19:46:51.429648+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,14.762,1632,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T194651,2026-03-18T19:47:09.204837+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,17.501,938,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T194709,2026-03-18T19:47:28.594836+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,19.279,840,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T194728,2026-03-18T19:47:41.918811+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,13.054,2092,0.0,1,0,1
+both-terraform-claude-sonnet-4-5-20260318T194741,2026-03-18T19:47:57.198958+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,15.093,1845,0.023115,1,0,1
+jira-docker-claude-sonnet-4-5-20260318T194757,2026-03-18T19:48:19.075560+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.723,2845,0.034863,1,0,1
+github-docker-claude-sonnet-4-5-20260318T194819,2026-03-18T19:48:41.194605+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,21.956,2925,0.035823,1,0,1
+both-ci-claude-sonnet-4-5-20260318T194841,2026-03-18T19:48:56.541826+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,15.176,2083,0.023157,1,0,1
+both-terraform-gpt-3.5-turbo-20260318T194856,2026-03-18T19:49:00.855935+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,terraform,4.151,765,0.000821,1,0,1
+jira-docker-gpt-3.5-turbo-20260318T194900,2026-03-18T19:49:06.350717+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,jira,docker,5.327,1049,0.000986,1,0,1
+github-docker-gpt-3.5-turbo-20260318T194906,2026-03-18T19:49:13.118195+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,github,docker,6.605,1116,0.001058,1,0,1
+both-ci-gpt-3.5-turbo-20260318T194913,2026-03-18T19:49:24.458848+00:00,gpt-3.5-turbo,GPT-3.5 Turbo,both,ci,11.152,1422,0.001552,1,0,1
+both-terraform-gemini-2.5-flash-20260318T194924,2026-03-18T19:49:37.031515+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,terraform,12.304,1594,0.0,1,0,1
+jira-docker-gemini-2.5-flash-20260318T194937,2026-03-18T19:49:54.657925+00:00,gemini-2.5-flash,Gemini 2.5 Flash,jira,docker,17.374,813,0.0,0,0,0
+github-docker-gemini-2.5-flash-20260318T194954,2026-03-18T19:50:12.433930+00:00,gemini-2.5-flash,Gemini 2.5 Flash,github,docker,17.696,844,0.0,0,0,0
+both-ci-gemini-2.5-flash-20260318T195012,2026-03-18T19:50:30.158159+00:00,gemini-2.5-flash,Gemini 2.5 Flash,both,ci,17.474,1175,0.0,0,0,0
+both-terraform-claude-sonnet-4-5-20260318T195030,2026-03-18T19:50:46.398302+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,terraform,16.078,1979,0.025125,0,0,0
+jira-docker-claude-sonnet-4-5-20260318T195046,2026-03-18T19:51:08.167341+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,jira,docker,21.696,2845,0.034863,1,0,1
+github-docker-claude-sonnet-4-5-20260318T195108,2026-03-18T19:51:33.534031+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,github,docker,25.233,3091,0.038313,1,0,1
+both-ci-claude-sonnet-4-5-20260318T195133,2026-03-18T19:51:49.518204+00:00,claude-sonnet-4-5,Claude Sonnet 4.5,both,ci,15.844,2065,0.022887,1,0,1
