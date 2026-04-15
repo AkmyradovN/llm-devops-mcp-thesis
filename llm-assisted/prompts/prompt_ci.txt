@@ -1,0 +1,37 @@
+You are a senior DevOps engineer. Generate a complete GitHub Actions workflow YAML file that deploys MCP servers to an EC2 instance.
+
+REQUIREMENTS:
+- Workflow name: "Deploy MCP Servers (LLM-Assisted)"
+- Trigger: push to branch "{trigger_branch}" and manual dispatch (workflow_dispatch)
+- Runner: ubuntu-latest
+- Timeout: 15 minutes
+
+GITHUB SECRETS AVAILABLE:
+- EC2_HOST: public IP of the EC2 instance
+- EC2_USER: SSH username (ubuntu)
+- EC2_SSH_KEY: contents of the SSH private key file
+
+DEPLOYMENT STEPS (in order):
+1. Checkout repository
+2. Write the SSH key from secrets to a file, set permissions to 600
+3. Record the deployment start time (save as a step output for later)
+4. SCP the MCP-Jira Docker directory ({jira_docker_path}) to EC2 at /home/ubuntu/jira
+5. SCP the MCP-GitHub Docker directory ({github_docker_path}) to EC2 at /home/ubuntu/github
+6. SSH into EC2 and build + deploy MCP-Jira: docker build, stop/rm old container, run new container mapping port {jira_port}:8000 with --restart unless-stopped
+7. SSH into EC2 and build + deploy MCP-GitHub: same but mapping port {github_port}:8000
+8. Health check for MCP-Jira: retry curl to http://${{EC2_HOST}}:{jira_port}/health up to 12 times with 5-second intervals. Exit 0 on HTTP 200, exit 1 on timeout.
+9. Health check for MCP-GitHub: same on port {github_port}
+10. Functional test for MCP-Jira: curl /create_ticket?project=TEST&summary=CI-test&priority=Medium and verify response contains "status":"success"
+11. Functional test for MCP-GitHub: curl /create_issue?owner=test&repo=test-repo&title=CI-test and verify response contains "status":"success"
+12. Print deployment summary with total duration in seconds (always runs, even on failure)
+13. Clean up: remove the SSH key file (always runs)
+
+IMPORTANT:
+- Use StrictHostKeyChecking=no for all SSH/SCP commands
+- Use set -e in SSH heredocs so failures propagate
+- The health check steps must FAIL the pipeline if the server doesn't respond
+
+Return your response as a single JSON object with exactly this key:
+- "deploy_yml": the complete deploy.yml contents as a string (valid YAML)
+
+Do NOT include any explanation or markdown formatting. Return ONLY valid JSON.

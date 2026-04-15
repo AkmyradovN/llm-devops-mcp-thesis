@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CI/CD Generation Output",
+    "description": "Expected JSON structure from LLM when generating GitHub Actions workflow",
+    "type": "object",
+    "properties": {
+        "deploy_yml": {
+            "type": "string",
+            "description": "Complete GitHub Actions workflow YAML contents",
+            "minLength": 100
+        }
+    },
+    "required": [
+        "deploy_yml"
+    ],
+    "additionalProperties": false
+}

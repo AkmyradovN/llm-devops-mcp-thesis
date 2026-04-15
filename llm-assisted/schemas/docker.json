@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Docker Generation Output",
+    "description": "Expected JSON structure from LLM when generating Dockerfile and application code",
+    "type": "object",
+    "properties": {
+        "dockerfile": {
+            "type": "string",
+            "description": "Complete Dockerfile contents",
+            "minLength": 50
+        },
+        "app_py": {
+            "type": "string",
+            "description": "Complete FastAPI application source code",
+            "minLength": 100
+        },
+        "requirements_txt": {
+            "type": "string",
+            "description": "Python dependencies, one per line",
+            "minLength": 10
+        }
+    },
+    "required": [
+        "dockerfile",
+        "app_py",
+        "requirements_txt"
+    ],
+    "additionalProperties": false
+}
