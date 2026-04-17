@@ -76,7 +76,7 @@ def plot_generation_time(data, output_dir):
 
     bp = ax.boxplot(
         box_data,
-        labels=[DISPLAY_NAMES.get(m, m) for m in models],
+        tick_labels=[DISPLAY_NAMES.get(m, m) for m in models],
         patch_artist=True,
         widths=0.5,
         medianprops={"color": "black", "linewidth": 2},

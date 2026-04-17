@@ -84,7 +84,7 @@ def plot_time_comparison(data, output_dir):
 
         bp = ax.boxplot(
             [manual_t, llm_t],
-            labels=["Manual", "LLM"],
+            tick_labels=["Manual", "LLM"],
             patch_artist=True,
             widths=0.5,
             medianprops={"color": "black", "linewidth": 1.5},
